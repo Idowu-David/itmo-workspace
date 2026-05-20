@@ -1,0 +1,147 @@
+import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import User from "../models/User";
+import { addNewUser, checkUserDataExists, checkUserExists, getUserByID } from "../services/auth.services";
+
+interface IToken {
+  id: string;
+  role: "student" | "admin";
+}
+
+const generateToken = ({ id, role }: IToken): string => {
+  return jwt.sign({ id, role }, process.env.JWT_SECRET!, { expiresIn: "1h" });
+};
+
+// POST /api/auth/register
+export const register = async (req: Request, res: Response) => {
+  try {
+    const { firstName, lastName, email, password } = req.body;
+
+    if (!firstName || !lastName || !email || !password) {
+      return res.status(400).json({
+        status: "error",
+        message: "All input fields are required",
+      });
+    }
+
+    const existingUser = await checkUserExists(email);
+
+    if (existingUser) {
+      return res.status(400).json({
+        status: "error",
+        message: "User email already exists",
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const newUser = await addNewUser(firstName, lastName, email, passwordHash);
+
+    if (!newUser) {
+      return res.status(400).json({
+        status: "error",
+        message: "User registration error occured",
+      });
+    }
+
+    const token = generateToken({
+      id: newUser._id.toString(),
+      role: newUser.role,
+    });
+
+    return res.status(201).json({
+      status: "success",
+      message: "User account created successfully",
+      data: {
+        id: newUser._id,
+        firstName: firstName,
+        lastName: lastName,
+        email: newUser.email,
+        role: newUser.role,
+        token: token,
+      },
+    });
+  } catch (error) {
+    console.error(`Error occured during sign up: ${error}`);
+    res.status(400).json({
+      status: "error",
+      message: "Server error",
+    });
+  }
+};
+
+// POST /api/auth/login
+export const login = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      res.status(400).json({
+        status: "error",
+        message: "All fields are required",
+      });
+    }
+
+    const user = await checkUserDataExists(email);
+
+    if (!user) {
+      return res.status(401).json({
+        status: "error",
+        message: "Invalid credentials.",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      res.status(401).json({
+        status: "error",
+        message: "Invalid credentials",
+      });
+    }
+
+    const token = generateToken({ id: user._id.toString(), role: user.role });
+
+    return res.status(200).json({
+      status: "success",
+      message: "Login successful",
+      token: token,
+      data: {
+        id: user._id,
+        name: user.firstName + user.lastName,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error(`Error occured during login: ${error}`);
+    res.status(400).json({
+      status: "error",
+      message: "Server error",
+    });
+  }
+};
+
+// GET /api/auth/me
+export const getMe = async (req: Request, res: Response) => {
+  try {
+    const user = await getUserByID((req as any).user.id);
+    if (!user) {
+    return res.status(404).json({
+        status: "error",
+        message: "User not found"
+      })
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: user,
+    })
+  } catch (error) {
+    console.error(`An internal server error occured: ${error}`)
+    return res.status(500).json({
+      status: "error",
+      message: "Server error"
+    })
+  }
+}
