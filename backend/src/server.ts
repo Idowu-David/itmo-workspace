@@ -4,6 +4,7 @@ import cors from "cors";
 import connectDB from "./config/db";
 import authRoutes from "./routes/auth.routes";
 import deskRoutes from "./routes/desk.routes";
+import bookingRoutes from "./routes/booking.routes";
 import { requestLogger } from "./middlewares/logger";
 
 dotenv.config();
@@ -24,6 +25,9 @@ app.use("/api/auth", authRoutes);
 
 // Desk routes
 app.use("/api/desks", deskRoutes);
+
+// Booking routes
+app.use("/api/booking", bookingRoutes);
 
 app.get("/api/health", (req: Request, res: Response) => {
   res.status(200).json({

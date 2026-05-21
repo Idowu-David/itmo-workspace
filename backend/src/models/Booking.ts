@@ -1,12 +1,16 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-export interface IBooking extends Document {
+// base fields shared between both
+export interface IBookingInput {
   deskId: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
-  name: String;
-  purpose: String;
-  phone: String;
+  name: string;
+  purpose: string;
+  phoneNumber: string;
   proofOfWork: string;
+}
+
+export interface IBooking extends IBookingInput, Document {
   status: "pending" | "approved" | "rejected" | "checked-in" | "expired";
   approvedAt?: Date;
 }
