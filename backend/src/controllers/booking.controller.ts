@@ -4,8 +4,10 @@ import mongoose from "mongoose";
 import {
   checkExistingBooking,
   createNewBooking,
+  fetchBooking,
 } from "../services/booking.services";
 import { IBookingInput } from "../models/Booking";
+import { BookingStatus } from "../types";
 
 // POST /api/booking
 export const makeBookingRequest = async (req: Request, res: Response) => {
@@ -74,6 +76,36 @@ export const makeBookingRequest = async (req: Request, res: Response) => {
       status: "success",
       message: "Booking created succesfully",
       data: newBooking,
+    });
+  } catch (error) {
+    console.error("Error occured: ", error);
+    return res.status(500).json({
+      status: "error",
+      message: "Internal server error occured",
+    });
+  }
+};
+
+export const fetchAllBooking = async (req: Request, res: Response) => {
+  try {
+    const status =
+      typeof req.query.status === "string"
+        ? (req.query.status as BookingStatus)
+        : undefined;
+
+    const bookings = await fetchBooking(status);
+
+    if (!bookings) {
+      return res.status(404).json({
+        status: "error",
+        message: "No booking found",
+      });
+    }
+
+    return res.status(200).json({
+      status: "success",
+      message: "Bookings fetched successfully",
+      data: bookings,
     });
   } catch (error) {
     console.error("Error occured: ", error);
