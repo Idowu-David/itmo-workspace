@@ -8,7 +8,6 @@ import {
   fetchBookingByID,
   updateDeskStatus,
 } from "../services/booking.services";
-import { IBookingInput } from "../models/Booking";
 import { BookingStatus } from "../types";
 import { startGracePeriod } from "../utils/gracePeriod";
 
@@ -158,7 +157,6 @@ export const approveBooking = async (req: Request, res: Response) => {
     return res.status(200).json({
       status: "success",
       message: "Booking approved",
-      data: booking,
     });
   } catch (error) {
     res.status(500).json({
@@ -233,8 +231,6 @@ export const checkinBooking = async (req: Request, res: Response) => {
     if (booking.status === "approved") {
       booking.status = "checked-in";
       await booking.save();
-
-      await updateDeskStatus(booking, "booked");
 
       return res.status(200).json({
         status: "success",
