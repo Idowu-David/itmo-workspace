@@ -1,8 +1,11 @@
 import { Router } from "express";
-import { getDesks } from "../controllers/desk.controller";
+import { getDeskPins, getDesks } from "../controllers/desk.controller";
+import { protect } from "../middlewares/protect";
+import { adminOnly } from "../middlewares/admin";
 
-const router = Router()
+const router = Router();
 
-router.get('/', getDesks);
+router.get("/", getDesks);
+router.get("/pins", protect, adminOnly, getDeskPins);
 
-export default router
+export default router;

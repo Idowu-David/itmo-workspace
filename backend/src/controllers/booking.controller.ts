@@ -1,15 +1,15 @@
 import { Request, Response } from "express";
-import { checkDesk } from "../services/desk.services";
+import { checkDesk, getDeskByID } from "../services/desk.services";
 import mongoose from "mongoose";
 import {
   checkExistingBooking,
   createNewBooking,
   fetchBooking,
   fetchBookingByID,
-  updateDeskStatus,
-} from "../services/booking.services";
+  } from "../services/booking.services";
 import { BookingStatus } from "../types";
 import { startGracePeriod } from "../utils/gracePeriod";
+import { updateDeskStatus } from "../services/desk.services";
 
 // POST /api/booking
 export const makeBookingRequest = async (req: Request, res: Response) => {
@@ -211,11 +211,21 @@ export const rejectBooking = async (req: Request, res: Response) => {
 export const checkinBooking = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const { pin } = req.body;
+
+    const userId = (req as any).user.id;
 
     if (!mongoose.isValidObjectId(id)) {
-      res.status(400).json({
+      return res.status(400).json({
         status: "error",
         message: "Invalid Booking ID",
+      });
+    }
+
+    if (!pin) {
+      return res.status(400).json({
+        status: "error",
+        message: "PIN is required",
       });
     }
 
@@ -228,9 +238,49 @@ export const checkinBooking = async (req: Request, res: Response) => {
       });
     }
 
+    if (booking.userId.toString() !== userId) {
+      return res.status(403).json({
+        status: "error",
+        message: "Not your booking",
+      });
+    }
+
+    const fifteenMinutes = 15 * 60 * 1000;
+    const timeElapsed = Date.now() - new Date(booking.approvedAt!).getTime();
+    if (timeElapsed > fifteenMinutes) {
+      return res.status(400).json({
+        status: "error",
+        message: "Check-in window has expired",
+      });
+    }
+
     if (booking.status === "approved") {
+      const desk = await getDeskByID(booking.deskId);
+
+      if (!desk) {
+        return res.status(404).json({
+          status: "error",
+          message: "Desk not found",
+        });
+      }
+
+      if (desk.pin !== pin) {
+        return res.status(400).json({
+          status: "error",
+          message: "Incorrect PIN",
+        });
+      }
+
       booking.status = "checked-in";
       await booking.save();
+
+      await updateDeskStatus(booking, "booked", booking._id)
+
+      const io = req.app.locals.io;
+      io.emit("desk-update", {
+        deskId: booking.deskId,
+        status: "occupied",
+      });
 
       return res.status(200).json({
         status: "success",

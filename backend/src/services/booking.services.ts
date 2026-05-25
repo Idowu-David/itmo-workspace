@@ -23,9 +23,3 @@ export const fetchBookingByID = async (id: string) => {
   return await Booking.findById({ _id: id });
 };
 
-export const updateDeskStatus = async (booking: IBooking, status: DeskStatus, bookingId?: mongoose.Types.ObjectId) => {
-  return await Desk.findByIdAndUpdate(booking.deskId, {
-    status: status,
-    currentBookingId: bookingId ? bookingId : null,
-  });
-};

@@ -4,6 +4,7 @@ export interface IDesk extends Document {
   deskNumber: Number;
   status: "available" | "pending" | "booked";
   currentBookingId: mongoose.Types.ObjectId | null;
+  pin: string;
 }
 
 const DeskSchema: Schema = new Schema(
@@ -18,9 +19,13 @@ const DeskSchema: Schema = new Schema(
       ref: "Booking",
       default: null,
     },
+    pin: {
+      type: String,
+      required: true,
+      select: false,
+    },
   },
   { timestamps: true },
 );
 
 export default mongoose.model<IDesk>("Desk", DeskSchema);
-

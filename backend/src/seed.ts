@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 dotenv.config();
 import Desk from './models/Desk'
-import path from "path";
+import crypto from "crypto"
 
 
 // dotenv.config({ path: path.resolve(__dirname, "../.env") });
@@ -17,11 +17,16 @@ const seedDesks = async () => {
     process.exit();
   }
 
-  const desks = Array.from({length: 8}, (_, i) => ({
+  const generatePIN = () => {
+    return crypto.randomInt(1000, 9999).toString(); // 4 digit PIN
+  };
+
+  const desks = Array.from({ length: 8 }, (_, i) => ({
     deskNumber: i + 1,
-    status: 'available',
+    status: "available",
     currentBooking: null,
-  }))
+    pin: generatePIN(),
+  }));
 
   await Desk.insertMany(desks);
   console.log('8 desks seeded successfully')
