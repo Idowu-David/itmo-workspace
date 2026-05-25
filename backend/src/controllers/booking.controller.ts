@@ -5,9 +5,12 @@ import {
   checkExistingBooking,
   createNewBooking,
   fetchBooking,
+  fetchBookingByID,
+  updateDeskStatus,
 } from "../services/booking.services";
 import { IBookingInput } from "../models/Booking";
 import { BookingStatus } from "../types";
+import { startGracePeriod } from "../utils/gracePeriod";
 
 // POST /api/booking
 export const makeBookingRequest = async (req: Request, res: Response) => {
@@ -112,6 +115,143 @@ export const fetchAllBooking = async (req: Request, res: Response) => {
     return res.status(500).json({
       status: "error",
       message: "Internal server error occured",
+    });
+  }
+};
+
+// PATCH /api/booking/:id/approve
+export const approveBooking = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      res.status(400).json({
+        status: "error",
+        message: "Invalid Booking ID",
+      });
+    }
+
+    const booking = await fetchBookingByID(String(id));
+
+    if (!booking) {
+      return res.status(404).json({
+        status: "error",
+        message: "Booking not found",
+      });
+    }
+
+    if (booking.status !== "pending") {
+      return res.status(400).json({
+        status: "error",
+        messag: "Booking is not pending",
+      });
+    }
+
+    booking.status = "approved";
+    booking.approvedAt = new Date();
+    await booking.save();
+
+    await updateDeskStatus(booking, "pending", booking._id);
+
+    startGracePeriod(booking, req.app.locals.io);
+
+    return res.status(200).json({
+      status: "success",
+      message: "Booking approved",
+      data: booking,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Server error",
+      error,
+    });
+  }
+};
+
+// PATCH /api/booking/:id/reject
+export const rejectBooking = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      res.status(400).json({
+        status: "error",
+        message: "Invalid Booking ID",
+      });
+    }
+
+    const booking = await fetchBookingByID(String(id));
+
+    if (!booking) {
+      return res.status(404).json({
+        status: "error",
+        message: "Booking not found",
+      });
+    }
+
+    booking.status = "rejected";
+    await booking.save();
+
+    await updateDeskStatus(booking, "available");
+
+    return res.status(200).json({
+      status: "success",
+      message: "Booking rejected",
+      data: booking,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Server error",
+      error,
+    });
+  }
+};
+
+// PATCH /api/booking/:id/checkin
+export const checkinBooking = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      res.status(400).json({
+        status: "error",
+        message: "Invalid Booking ID",
+      });
+    }
+
+    const booking = await fetchBookingByID(String(id));
+
+    if (!booking) {
+      return res.status(404).json({
+        status: "error",
+        message: "Booking not found",
+      });
+    }
+
+    if (booking.status === "approved") {
+      booking.status = "checked-in";
+      await booking.save();
+
+      await updateDeskStatus(booking, "booked");
+
+      return res.status(200).json({
+        status: "success",
+        message: "Successfully checked in",
+        data: booking,
+      });
+    }
+
+    return res.status(400).json({
+      status: "error",
+      message: "Booking status is not approved",
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Server error",
+      error,
     });
   }
 };

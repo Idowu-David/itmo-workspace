@@ -1,9 +1,20 @@
 import { Router } from "express";
-import { fetchAllBooking, makeBookingRequest } from "../controllers/booking.controller";
+import {
+  approveBooking,
+  fetchAllBooking,
+  rejectBooking,
+  makeBookingRequest,
+  checkinBooking,
+} from "../controllers/booking.controller";
 import { protect } from "../middlewares/protect";
+import { adminOnly } from "../middlewares/admin";
 
 const router = Router();
 
-router.post('/', protect, makeBookingRequest)
-router.get('/', fetchAllBooking);
+router.post("/", protect, makeBookingRequest);
+router.get("/", protect, adminOnly, fetchAllBooking);
+router.patch("/:id/checkin", protect, checkinBooking);
+router.patch("/:id/approve", protect, adminOnly, approveBooking);
+router.patch("/:id/reject", protect, adminOnly, rejectBooking);
+
 export default router;

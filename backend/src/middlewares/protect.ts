@@ -1,7 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { AuthRequest } from "../types";
 
-export const protect = (req: Request, res: Response, next: NextFunction) => {
+export const protect = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
 
@@ -14,10 +19,10 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       id: string;
-      role: string;
+      role: "student" | "admin";
     };
 
-    (req as any).user = decoded;
+    req.user = decoded;
 
     next();
   } catch (error) {

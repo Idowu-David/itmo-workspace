@@ -1,6 +1,8 @@
-import Booking from "../models/Booking";
+import mongoose from "mongoose";
+import Booking, { IBooking } from "../models/Booking";
 import { IBookingInput } from "../models/Booking";
-import { BookingStatus } from "../types";
+import Desk from "../models/Desk";
+import { BookingStatus, DeskStatus } from "../types";
 
 export const checkExistingBooking = async (id: string) => {
   return await Booking.findOne({
@@ -15,4 +17,15 @@ export const createNewBooking = async (bookingData: IBookingInput) => {
 
 export const fetchBooking = async (status?: BookingStatus) => {
   return await Booking.find(status ? { status } : {});
+};
+
+export const fetchBookingByID = async (id: string) => {
+  return await Booking.findById({ _id: id });
+};
+
+export const updateDeskStatus = async (booking: IBooking, status: DeskStatus, bookingId?: mongoose.Types.ObjectId) => {
+  return await Desk.findByIdAndUpdate(booking.deskId, {
+    status: status,
+    currentBookingId: bookingId ? bookingId : null,
+  });
 };
