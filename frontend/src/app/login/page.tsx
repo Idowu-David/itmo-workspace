@@ -8,15 +8,23 @@ import Link from "next/link";
 
 const Login = () => {
   const [email, setEmail] = useState("");
+
   const router = useRouter();
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     if (!email.includes("@")) {
       alert("Please enter a valid email");
       return;
     }
-    router.push(`/password?email=${encodeURIComponent(email)}`);
+
+    try {
+      localStorage.setItem("email", email);
+      router.push(`/login/password`);
+    } catch (error) {
+      console.error("ERROR at Login", error);
+    }
   };
 
   return (
@@ -58,7 +66,11 @@ const Login = () => {
             placeholder="Enter your email address"
             className="pl-4 rounded-md h-12 border text-black/80 border-[#E2E8F0] flex-1 outline-none transition-all focus:border-[#2C5CC5] focus:ring-1 focus:ring-[#2C5CC5]"
           />
-          <button className="bg-[#2C5CC5] text-white rounded-md h-12 px-4">
+          <button
+            disabled={!email}
+            type="submit"
+            className="bg-[#2C5CC5] text-white rounded-md h-12 px-4 active:scale-95 transition-transform disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
             Continue
           </button>
         </form>

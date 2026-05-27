@@ -5,6 +5,7 @@ import Link from "next/link";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
+import axios from "axios";
 
 const Details = () => {
   const [password, setPassword] = useState("");
@@ -12,6 +13,7 @@ const Details = () => {
   const [firstName, setFirstName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const router = useRouter();
 
@@ -39,8 +41,18 @@ const Details = () => {
       localStorage.removeItem("email");
 
       router.push("/");
-    } catch (error: any) {
-      console.log("ERROR", error);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+
+        if (status === 400) {
+          setError("Email already exists");
+        } else if (status === 404) {
+          setError("Account creation unsuccessful");
+        } else {
+          setError("Something went wrong, please try again");
+        }
+      }
     } finally {
       setLoading(false);
     }
@@ -94,14 +106,19 @@ const Details = () => {
                 {showPassword ? "Hide" : "Show"}
               </button>
             </div>
-            <input
-              type={showPassword ? "text" : "password"}
-              required
-              placeholder="Enter your password"
-              className="pl-4 rounded-md w-full h-12 border border-[#E2E8F0] flex-1 outline-none transition-all focus:border-[#2C5CC5] focus:ring-1 focus:ring-[#2C5CC5]"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div>
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                placeholder="Enter your password"
+                className="pl-4 rounded-md w-full h-12 border border-[#E2E8F0] flex-1 outline-none transition-all focus:border-[#2C5CC5] focus:ring-1 focus:ring-[#2C5CC5]"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              {error && (
+                <p className="text-red-500 text-sm mt-1 font-medium">{error}</p>
+              )}
+            </div>
           </div>
 
           <button

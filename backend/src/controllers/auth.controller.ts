@@ -39,7 +39,7 @@ export const register = async (req: Request, res: Response) => {
     const newUser = await addNewUser(firstName, lastName, email, passwordHash);
 
     if (!newUser) {
-      return res.status(400).json({
+      return res.status(404).json({
         status: "error",
         message: "User registration error occured",
       });
@@ -77,7 +77,7 @@ export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      res.status(400).json({
+      return res.status(400).json({
         status: "error",
         message: "All fields are required",
       });
@@ -86,7 +86,7 @@ export const login = async (req: Request, res: Response) => {
     const user = await checkUserDataExists(email);
 
     if (!user) {
-      return res.status(401).json({
+      return res.status(404).json({
         status: "error",
         message: "Invalid credentials.",
       });
@@ -94,7 +94,7 @@ export const login = async (req: Request, res: Response) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      res.status(401).json({
+      return res.status(401).json({
         status: "error",
         message: "Invalid credentials",
       });
@@ -115,7 +115,7 @@ export const login = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error(`Error occured during login: ${error}`);
-    res.status(400).json({
+    return res.status(400).json({
       status: "error",
       message: "Server error",
     });
