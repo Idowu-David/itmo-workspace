@@ -59,7 +59,7 @@ export const register = async (req: Request, res: Response) => {
         lastName: lastName,
         email: newUser.email,
         role: newUser.role,
-        token: token,
+        token,
       },
     });
   } catch (error) {

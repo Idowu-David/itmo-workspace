@@ -13,8 +13,12 @@ connectDB();
 
 const app: Application = express();
 
-app.use(cors());
-
+app.use(
+  cors({
+    origin: "http://localhost:3000", // exact origin, not '*'
+    credentials: true, // allow cookies/auth headers
+  }),
+);
 app.use(express.json());
 
 // Logger Middleware
