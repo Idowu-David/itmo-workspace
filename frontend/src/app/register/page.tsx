@@ -16,7 +16,7 @@ const Register = () => {
     router.push(`/register/details`);
   };
   return (
-    <div className="bg-white flex flex-col items-center pt-10 justify-center h-svh lg:w-full">
+    <div className="bg-white flex flex-col items-center pt-10 md:justify-center h-svh lg:w-full">
       <div className="py-4 flex flex-col items-center w-[90%] max-w-md lg:max-w-199.5">
         <h1 className="text-[50px] font-medium text-center text-[#020617]">
           Let’s Get You Started
@@ -61,7 +61,7 @@ const Register = () => {
         </form>
         <p className="text-[16px] mt-8 text-[#64748B]">
           Don't have an account?{" "}
-          <Link href="/details" className="text-[#2C5CC5] underline">
+          <Link href="/login" className="text-[#2C5CC5] underline">
             {" "}
             Log in
           </Link>

@@ -28,7 +28,7 @@ const Login = () => {
   };
 
   return (
-    <div className="bg-white flex flex-col items-center pt-10 h-svh lg:w-full">
+    <div className="bg-white flex flex-col items-center pt-10 h-svh lg:w-full md:justify-center">
       <div className="py-4 flex flex-col items-center w-[90%] max-w-md lg:max-w-200">
         <h1 className="text-[50px] font-medium text-center text-[#020617]">
           Welcome Back!

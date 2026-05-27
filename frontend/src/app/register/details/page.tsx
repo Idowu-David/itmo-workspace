@@ -17,6 +17,21 @@ const Details = () => {
 
   const router = useRouter();
 
+  const checks = [
+    {
+      label: "Use upper and lower case letters (e.g. Aa)",
+      passed: /(?=.*[a-z])(?=.*[A-Z])/.test(password),
+    },
+    { label: "Use a number (e.g. 1234)", passed: /\d/.test(password) },
+    {
+      label: "Use a symbol (e.g. !@#$)",
+      passed: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+    },
+    { label: "Use 8 or more characters", passed: password.length >= 8 },
+  ];
+
+  const allChecksPassed = checks.every((c) => c.passed);
+
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -46,7 +61,7 @@ const Details = () => {
         const status = error.response?.status;
 
         if (status === 400) {
-          setError("Email already exists");
+          setError("Something went wrong, please try again");
         } else if (status === 404) {
           setError("Account creation unsuccessful");
         } else {
@@ -57,8 +72,9 @@ const Details = () => {
       setLoading(false);
     }
   };
+
   return (
-    <div className="bg-white flex flex-col items-center pt-10 h-svh lg:w-full text-black/70">
+    <div className="bg-white flex flex-col items-center pt-10 h-svh lg:w-full text-black/70 md:justify-center">
       <div className="py-4 flex flex-col items-center w-[90%] max-w-md lg:max-w-199.5">
         <h1 className="text-[50px] font-medium text-center text-[#020617]">
           Create Password
@@ -116,14 +132,38 @@ const Details = () => {
                 onChange={(e) => setPassword(e.target.value)}
               />
               {error && (
-                <p className="text-red-500 text-sm mt-1 font-medium">{error}</p>
+                <p className="text-red-500 text-sm mt-2 font-medium">{error}</p>
+              )}
+
+              {/* Password checks */}
+              {password.length > 0 && (
+                <ul className="mt-3 flex flex-col gap-1.5">
+                  {checks.map((check) => (
+                    <li key={check.label} className="flex items-center gap-2">
+                      <span
+                        className={
+                          check.passed ? "text-green-500" : "text-gray-400"
+                        }
+                      >
+                        {check.passed ? "✓" : "○"}
+                      </span>
+                      <span
+                        className={
+                          check.passed ? "text-green-500" : "text-gray-400"
+                        }
+                      >
+                        {check.label}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
           </div>
 
           <button
             type="submit"
-            disabled={!password || loading}
+            disabled={!allChecksPassed || !firstName || !lastName || loading}
             className={clsx(
               "w-full mt-6 rounded-md py-3.5 text-white font-medium",
               "bg-[#2C5CC5]",
