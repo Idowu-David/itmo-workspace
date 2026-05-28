@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IDesk extends Document {
-  deskNumber: Number;
+  deskNumber: string;
   status: "available" | "pending" | "booked";
   currentBookingId: mongoose.Types.ObjectId | null;
   pin: string;
@@ -9,7 +9,7 @@ export interface IDesk extends Document {
 
 const DeskSchema: Schema = new Schema(
   {
-    deskNumber: { type: Number, required: true, uniqure: true, min: 1, max: 8 },
+    deskNumber: { type: String, required: true, uniqure: true, min: 1, max: 8 },
     status: {
       type: String,
       enum: ["available", "pending", "occupied"],

@@ -2,7 +2,6 @@ import express, { Request, Response } from "express";
 import { deskPins, getAllDesks } from "../services/desk.services";
 import Desk from "../models/Desk";
 
-
 // GET /api/desks
 export const getDesks = async (req: Request, res: Response) => {
   try {
@@ -15,10 +14,17 @@ export const getDesks = async (req: Request, res: Response) => {
       });
     }
 
+    const availableDesks = desks.filter(
+      (desk) => desk.status === "available",
+    ).length;
+
     return res.status(200).json({
       status: "success",
       message: "Desks fetched successfully",
-      data: desks,
+      data: {
+        desks,
+        availableDesks,
+      },
     });
   } catch (error) {
     return res.status(500).json({
@@ -35,16 +41,16 @@ export const getDeskPins = async (req: Request, res: Response) => {
     const desks = await deskPins();
 
     return res.status(200).json({
-      status: 'success',
-      data: desks.map(d => ({
+      status: "success",
+      data: desks.map((d) => ({
         deskNumber: d.deskNumber,
-        pin: d.pin
-      }))
+        pin: d.pin,
+      })),
     });
   } catch (error) {
     return res.status(500).json({
-      status: 'error',
-      message: 'Internal server error'
+      status: "error",
+      message: "Internal server error",
     });
   }
 };
