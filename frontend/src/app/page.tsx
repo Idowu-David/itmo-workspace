@@ -1,65 +1,79 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import DeskCard from "@/components/DeskCard";
+import NavBar from "@/components/NavBar";
+import { DeskStatus } from "@/types";
+import { useState } from "react";
+
+interface Desk {
+  id: string;
+  label: string;
+  status: DeskStatus;
+}
+
+const App = () => {
+  const [desks, setDesks] = useState<Desk[]>([
+    { id: "1", label: "Desk 1", status: "available" },
+    { id: "2", label: "Desk 2", status: "booked" },
+    { id: "3", label: "Desk 3", status: "available" },
+    { id: "4", label: "Desk 4", status: "available" },
+    { id: "5", label: "Desk 1", status: "available" },
+    { id: "6", label: "Desk 2", status: "booked" },
+    { id: "7", label: "Desk 3", status: "available" },
+    { id: "8", label: "Desk 4", status: "available" },
+    // ... add more desks
+  ]);
+
+  const handleDeskClick = (clickedId: string) => {
+    const foundDesk = desks.find((d) => d.id === clickedId);
+    if (foundDesk) {
+      // setSelectedDesk(foundDesk); // This opens the modal
+      return
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+    <div className="flex flex-col items-center mb-10">
+      <NavBar />
+
+      <main className="flex flex-col px-4 max-w-3xl gap-6 lg: ">
+        <p className="text-4xl text-center font-semibold leading-12.5 text-[#020617] mt-10">
+          WELCOME TO ITMO WORKSPACE BOOKING PAGE!
+        </p>
+
+        <div className="w-full bg-black/30 border rounded-[30px] p-5">
+          <div className="flex flex-col justify-center font-bold text-xl mb-5 gap-2">
+            <div className="flex gap-3">
+              <p className="w-10.5 h-7 bg-[#16A34A33] rounded-md text-center">
+                3
+              </p>
+              Workspaces available
+            </div>
+            <div className="flex gap-3">
+              <p className="w-10.5 h-7 bg-[#EDD0D0] rounded-md text-center">
+                5
+              </p>
+              Workspaces unavailable
+            </div>
+          </div>
+
+          <div className="w-full max-w-2xl mb-10">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 place-items-center">
+              {desks.map((desk) => (
+                <DeskCard
+                  key={desk.id}
+                  id={desk.id}
+                  label={desk.label}
+                  status={desk.status}
+                  onClick={handleDeskClick}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </main>
     </div>
   );
-}
+};
+
+export default App;
