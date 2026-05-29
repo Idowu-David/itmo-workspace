@@ -5,17 +5,17 @@ export type DeskStatus = "available" | "booked" | "hold";
 interface DeskCardProps {
   id: string;
   label: string;
-  status: DeskStatus;
+  status: string;
   onClick: (id: string) => void;
 }
 
-const getDeskStyles = (status: DeskStatus) => {
+const getDeskStyles = (status: string) => {
   switch (status) {
     case "available":
       return "bg-[#16A34A33]";
     case "booked":
       return "bg-[#A3161633]";
-    case "hold":
+    case "pending":
       return "bg-[#0000001A]";
   }
 };
@@ -27,7 +27,7 @@ const DeskCard: React.FC<DeskCardProps> = ({ id, label, status, onClick }) => {
       disabled={status !== "available"}
       onClick={() => onClick(id)}
       className={`
-        w-9/10 rounded-2xl flex flex-col items-center justify-center py-3 ${getDeskStyles("booked")}
+        w-9/10 rounded-2xl flex flex-col items-center justify-center py-3 ${getDeskStyles(status)}
         `}
     >
       <div className="rounded-full p-3 flex items-center border justify-center">
@@ -39,7 +39,7 @@ const DeskCard: React.FC<DeskCardProps> = ({ id, label, status, onClick }) => {
           className=""
         />
       </div>
-      <span className="text-xl font-semibold mt-1">{status === "hold" ? "UNDER REVIEW" : label}</span>
+      <span className="text-xl font-semibold mt-1">{status === "pending" ? "UNDER REVIEW" : label}</span>
     </button>
   );
 

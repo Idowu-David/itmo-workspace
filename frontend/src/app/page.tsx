@@ -2,33 +2,49 @@
 
 import DeskCard from "@/components/DeskCard";
 import NavBar from "@/components/NavBar";
+import api from "@/lib/api";
+import fetchDesks from "@/lib/fetchDesk";
 import { DeskStatus } from "@/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Desk {
   id: string;
-  label: string;
-  status: DeskStatus;
+  status: string;
+  deskNumber: string;
+  available: Number;
 }
 
 const App = () => {
-  const [desks, setDesks] = useState<Desk[]>([
-    { id: "1", label: "Desk 1", status: "available" },
-    { id: "2", label: "Desk 2", status: "booked" },
-    { id: "3", label: "Desk 3", status: "available" },
-    { id: "4", label: "Desk 4", status: "available" },
-    { id: "5", label: "Desk 1", status: "available" },
-    { id: "6", label: "Desk 2", status: "booked" },
-    { id: "7", label: "Desk 3", status: "available" },
-    { id: "8", label: "Desk 4", status: "available" },
-    // ... add more desks
-  ]);
+  const [desks, setDesks] = useState<Desk[]>([]);
+  const [totalDesks, setTotalDesks] = useState(0);
+  const [availableDesks, setAvailableDesks] = useState(0);
 
+  useEffect(() => {
+    const fetchDesks = async () => {
+      try {
+        const response = await api.get("/desks");
+       setTotalDesks(response.data.data.desks.length);
+       setAvailableDesks(response.data.data.availableDesks);
+        setDesks(
+          response.data.data.desks.map((desk: any) => ({
+            id: desk._id,
+            status: desk.status,
+            deskNumber: desk.deskNumber,
+          })),
+        );
+      } catch (error) {
+        console.error("Error while fetching from frontend", error);
+      }
+    };
+
+    fetchDesks();
+  }, []);
   const handleDeskClick = (clickedId: string) => {
     const foundDesk = desks.find((d) => d.id === clickedId);
     if (foundDesk) {
       // setSelectedDesk(foundDesk); // This opens the modal
-      return
+
+      return;
     }
   };
 
@@ -41,17 +57,17 @@ const App = () => {
           WELCOME TO ITMO WORKSPACE BOOKING PAGE!
         </p>
 
-        <div className="w-full bg-black/30 border rounded-[30px] p-5">
+        <div className="w-full bg-white shadow-md border rounded-[30px] p-5">
           <div className="flex flex-col justify-center font-bold text-xl mb-5 gap-2">
             <div className="flex gap-3">
               <p className="w-10.5 h-7 bg-[#16A34A33] rounded-md text-center">
-                3
+                {availableDesks}
               </p>
               Workspaces available
             </div>
             <div className="flex gap-3">
               <p className="w-10.5 h-7 bg-[#EDD0D0] rounded-md text-center">
-                5
+                {totalDesks - availableDesks}
               </p>
               Workspaces unavailable
             </div>
@@ -63,7 +79,7 @@ const App = () => {
                 <DeskCard
                   key={desk.id}
                   id={desk.id}
-                  label={desk.label}
+                  label={desk.deskNumber}
                   status={desk.status}
                   onClick={handleDeskClick}
                 />
