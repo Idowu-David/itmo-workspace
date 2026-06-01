@@ -6,15 +6,18 @@ import {
   createNewBooking,
   fetchBooking,
   fetchBookingByID,
-  } from "../services/booking.services";
+} from "../services/booking.services";
 import { BookingStatus } from "../types";
 import { startGracePeriod } from "../utils/gracePeriod";
 import { updateDeskStatus } from "../services/desk.services";
+import { IBookingInput } from "../models/Booking";
 
 // POST /api/booking
 export const makeBookingRequest = async (req: Request, res: Response) => {
   try {
-    const { deskId, name, purpose, phoneNumber, proofOfWork } = req.body;
+    const { deskId, name, purpose, phoneNumber } = req.body;
+    const proofOfWork = req.file?.filename;
+
     const userId = (req as any).user!.id;
 
     if (!deskId || !name || !purpose || !phoneNumber || !proofOfWork) {
@@ -56,7 +59,7 @@ export const makeBookingRequest = async (req: Request, res: Response) => {
       });
     }
 
-    const bookingData = {
+    const bookingData: IBookingInput = {
       deskId,
       userId,
       name,
@@ -66,6 +69,8 @@ export const makeBookingRequest = async (req: Request, res: Response) => {
     };
 
     const newBooking = await createNewBooking(bookingData);
+
+    console.log("NEW BOOKING", newBooking);
 
     if (!newBooking) {
       return res.status(400).json({
@@ -274,7 +279,7 @@ export const checkinBooking = async (req: Request, res: Response) => {
       booking.status = "checked-in";
       await booking.save();
 
-      await updateDeskStatus(booking, "booked", booking._id)
+      await updateDeskStatus(booking, "booked", booking._id);
 
       const io = req.app.locals.io;
       io.emit("desk-update", {

@@ -1,53 +1,42 @@
-"use client"
+"use client";
 
+import { Desk } from "@/app/page";
 import { useState } from "react";
+import DeskCard from "./DeskCard";
 
+interface IBookingModal {
+  desk: Desk;
+  onConfirm: () => void
+  onClose: () => void;
+}
 
-const BookingModal = ({ desk, onClose, onConfirm }: any) => {
-  const [name, setName] = useState("");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Pass the form data back to the parent
-    onConfirm({ deskId: desk.id, userName: name });
-  };
+const BookingModal = ({ desk, onClose, onConfirm }: IBookingModal) => {
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
-        <h2 className="text-xl font-bold mb-4">Book {desk.label}</h2>
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Full Name
-            </label>
-            <input
-              required
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="Enter your name"
-            />
+        <div className="flex flex-col items-center justify-center">
+          <div className="w-48 mb-8 flex items-center justify-center">
+            <DeskCard label={desk.deskNumber} status={desk.status} />
           </div>
-
-          <div className="flex gap-3 mt-2">
+          <p className="text-2xl font-bold">Make a Booking</p>
+          <p className="text-center text-xl my-6">
+            Note: You must arrive within 15 minutes after successful
+            booking{" "}
+          </p>
+          <div className="flex space-x-4 items-center justify-between">
             <button
-              type="button"
               onClick={onClose}
-              className="flex-1 py-2 px-4 rounded-lg bg-gray-100 font-medium text-gray-600 hover:bg-gray-200"
-            >
+              className="p-4 border-red-300  border-2 px-10 text-red-300 rounded-2xl">
               Cancel
             </button>
             <button
-              type="submit"
-              className="flex-1 py-2 px-4 rounded-lg bg-blue-600 font-medium text-white hover:bg-blue-700"
-            >
-              Confirm Booking
+              onClick={onConfirm}
+              className="p-4 bg-blue-700 rounded-2xl border-2 px-10 text-white">
+              Confirm
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
