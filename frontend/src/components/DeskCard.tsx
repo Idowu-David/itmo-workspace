@@ -30,7 +30,7 @@ const DeskCard: React.FC<DeskCardProps> = ({ label, status, onClick }) => {
         w-9/10 rounded-2xl flex flex-col items-center justify-center py-3 ${getDeskStyles(status)}
         `}
     >
-      <div className="rounded-full bg-white flex items-center border justify-center relative w-20 h-20">
+      <div className="rounded-full bg-white flex items-center justify-center relative w-20 h-20">
         <Image fill alt={"Desk"} src="/images/desk.png" className="object-contain p-3"/>
       </div>
       <span className="text-xl font-semibold mt-1">

@@ -18,94 +18,97 @@ export interface Desk {
 }
 
 const App = () => {
-  // const [desks, setDesks] = useState<Desk[]>([]);
+  const [desks, setDesks] = useState<Desk[]>([]);
   const [selectedDesk, setSelectedDesk] = useState<Desk | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [totalDesks, setTotalDesks] = useState(0);
   const [availableDesks, setAvailableDesks] = useState(0);
-  const [bookingStep, setBookingStep] = useState(3);
+  const [bookingStep, setBookingStep] = useState(1);
+  const [hasPendingBooking, setHasPendingBooking] = useState(false);
 
-  // useEffect(() => {
-  //   const fetchDesks = async () => {
-  //     try {
-  //       const response = await api.get("/desks");
-  //       setTotalDesks(response.data.data.desks.length);
-  //       setAvailableDesks(response.data.data.availableDesks);
-  //       setDesks(
-  //         response.data.data.desks.map((desk: any) => ({
-  //           id: desk._id,
-  //           status: desk.status,
-  //           deskNumber: desk.deskNumber,
-  //         })),
-  //       );
-  //     } catch (error) {
-  //       console.error("Error while fetching from frontend", error);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchDesks = async () => {
+      try {
+        const response = await api.get("/desks");
+        setTotalDesks(response.data.data.desks.length);
+        setAvailableDesks(response.data.data.availableDesks);
+        setDesks(
+          response.data.data.desks.map((desk: any) => ({
+            id: desk._id,
+            status: desk.status,
+            deskNumber: desk.deskNumber,
+          })),
+        );
+      } catch (error) {
+        console.error("Error while fetching from frontend", error);
+      }
+    };
 
-  //   fetchDesks();
-  // }, []);
+    fetchDesks();
+  }, []);
 
-  const desks: Desk[] = [
-    {
-      id: "1",
-      status: "available",
-      deskNumber: "1",
-      available: 8,
-    },
-    {
-      id: "2",
-      status: "available",
-      deskNumber: "2",
-      available: 8,
-    },
-    {
-      id: "3",
-      status: "booked",
-      deskNumber: "3",
-      available: 8,
-    },
-    {
-      id: "4",
-      status: "available",
-      deskNumber: "4",
-      available: 8,
-    },
-    {
-      id: "5",
-      status: "available",
-      deskNumber: "5",
-      available: 8,
-    },
-    {
-      id: "6",
-      status: "available",
-      deskNumber: "6",
-      available: 8,
-    },
-    {
-      id: "7",
-      status: "available",
-      deskNumber: "7",
-      available: 8,
-    },
-    {
-      id: "8",
-      status: "available",
-      deskNumber: "8",
-      available: 8,
-    },
-  ];
+  // const desks: Desk[] = [
+  //   {
+  //     id: "1",
+  //     status: "available",
+  //     deskNumber: "1",
+  //     available: 8,
+  //   },
+  //   {
+  //     id: "2",
+  //     status: "available",
+  //     deskNumber: "2",
+  //     available: 8,
+  //   },
+  //   {
+  //     id: "3",
+  //     status: "booked",
+  //     deskNumber: "3",
+  //     available: 8,
+  //   },
+  //   {
+  //     id: "4",
+  //     status: "available",
+  //     deskNumber: "4",
+  //     available: 8,
+  //   },
+  //   {
+  //     id: "5",
+  //     status: "available",
+  //     deskNumber: "5",
+  //     available: 8,
+  //   },
+  //   {
+  //     id: "6",
+  //     status: "available",
+  //     deskNumber: "6",
+  //     available: 8,
+  //   },
+  //   {
+  //     id: "7",
+  //     status: "available",
+  //     deskNumber: "7",
+  //     available: 8,
+  //   },
+  //   {
+  //     id: "8",
+  //     status: "available",
+  //     deskNumber: "8",
+  //     available: 8,
+  //   },
+  // ];
 
   const handleDeskClick = (desk: Desk) => {
     setSelectedDesk(desk);
-    setBookingStep(3);
+    if (hasPendingBooking) setBookingStep(3);
+    else setBookingStep(1);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedDesk(null);
+    setBookingStep(1);
   };
 
   return (
@@ -146,6 +149,7 @@ const App = () => {
               desk={selectedDesk}
               onClose={handleCloseModal}
               onContinue={() => setBookingStep(3)}
+              setHasPendingBooking={setHasPendingBooking}
             />
           )}
 
@@ -153,6 +157,7 @@ const App = () => {
             <BookingModalReview
               desk={selectedDesk}
               onClose={handleCloseModal}
+              
             />
           )}
 

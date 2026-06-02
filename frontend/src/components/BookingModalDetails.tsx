@@ -6,19 +6,27 @@ import { useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { FiUpload } from "react-icons/fi";
 import axios from "axios";
+import clsx from "clsx";
 
 interface IBookingModal {
   desk: Desk;
   onClose: () => void;
   onContinue: () => void;
+  setHasPendingBooking: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const BookingModalDetails = ({ desk, onClose, onContinue }: IBookingModal) => {
+const BookingModalDetails = ({
+  desk,
+  onClose,
+  onContinue,
+  setHasPendingBooking,
+}: IBookingModal) => {
   const [name, setName] = useState("");
   const [purpose, setPurpose] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [proof, setProof] = useState<File | null>(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,13 +40,14 @@ const BookingModalDetails = ({ desk, onClose, onContinue }: IBookingModal) => {
     formData.append("name", name);
     formData.append("purpose", purpose);
     formData.append("phoneNumber", phoneNumber);
-    formData.append("deskId", desk.id)
+    formData.append("deskId", desk.id);
     formData.append("proofOfWork", proof);
 
     const token = localStorage.getItem("token");
 
     try {
       setError("");
+      setLoading(true);
 
       await api.post("/booking", formData, {
         headers: {
@@ -46,19 +55,21 @@ const BookingModalDetails = ({ desk, onClose, onContinue }: IBookingModal) => {
         },
       });
 
+      setHasPendingBooking(true);
       onContinue();
-      
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.log("Error details: ", error.response?.data)
+        setError(error.response?.data.message);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setProof(e.target.files[0]);
-      setError("")
+      setError("");
     }
   };
 
@@ -132,9 +143,25 @@ const BookingModalDetails = ({ desk, onClose, onContinue }: IBookingModal) => {
             </div>
 
             <button
+              type="submit"
               onClick={handleSubmit}
-              className="py-4 px-8 bg-blue-700 text-white rounded-xl mt-6">
-              Done
+              className={clsx(
+                "w-full mt-6 rounded-xl py-4 text-white font-medium",
+                "bg-blue-700",
+                "transition-all duration-200 ease-out",
+                "hover:bg-[#244da7] hover:shadow-lg hover:shadow-blue-500/20",
+                "active:scale-[0.95]",
+                "flex items-center justify-center gap-2",
+              )}
+            >
+              {loading ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  Please wait...
+                </>
+              ) : (
+                "Confirm"
+              )}
             </button>
           </form>
         </div>
