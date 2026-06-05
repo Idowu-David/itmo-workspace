@@ -2,13 +2,13 @@
 
 import BookingModal from "@/components/BookingModal";
 import BookingModalDetails from "@/components/BookingModalDetails";
-import BookingModal2 from "@/components/BookingModalDetails";
 import BookingModalReview from "@/components/BookingModalReview";
 import DeskCard from "@/components/DeskCard";
 import NavBar from "@/components/NavBar";
 import api from "@/lib/api";
-import { DeskStatus } from "@/types";
 import { useEffect, useState } from "react";
+import { IBooking } from "../../../backend/src/models/Booking";
+import socket from "@/lib/socket";
 
 export interface Desk {
   id: string;
@@ -24,9 +24,31 @@ const App = () => {
   const [totalDesks, setTotalDesks] = useState(0);
   const [availableDesks, setAvailableDesks] = useState(0);
   const [bookingStep, setBookingStep] = useState(1);
-  const [hasPendingBooking, setHasPendingBooking] = useState(false);
+  const [activeBooking, setActiveBooking] = useState<IBooking | null>(null);
 
   useEffect(() => {
+    socket.connect();
+
+    socket.on("desk-update", ({ deskId, status }) => {
+      setDesks((prev) =>
+        prev.map((d) => (d.id === deskId ? { ...d, status } : d)),
+      );
+    });
+
+    const getUserBooking = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const booking = await api.get("/booking/my-booking", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setActiveBooking(booking.data.data);
+      } catch (error) {
+        console.log("Error from fetch user booking", error);
+      }
+    };
     const fetchDesks = async () => {
       try {
         const response = await api.get("/desks");
@@ -44,6 +66,7 @@ const App = () => {
       }
     };
 
+    getUserBooking();
     fetchDesks();
   }, []);
 
@@ -98,10 +121,11 @@ const App = () => {
   //   },
   // ];
 
+  // alert(activeBook)
+
   const handleDeskClick = (desk: Desk) => {
+    if (activeBooking) return;
     setSelectedDesk(desk);
-    if (hasPendingBooking) setBookingStep(3);
-    else setBookingStep(1);
     setIsModalOpen(true);
   };
 
@@ -110,6 +134,8 @@ const App = () => {
     setSelectedDesk(null);
     setBookingStep(1);
   };
+
+  // console.log("PENDING:", activeBook);
 
   return (
     <div className="flex flex-col items-center mb-10">
@@ -149,7 +175,8 @@ const App = () => {
               desk={selectedDesk}
               onClose={handleCloseModal}
               onContinue={() => setBookingStep(3)}
-              setHasPendingBooking={setHasPendingBooking}
+              setActiveBooking={setActiveBooking}
+              setDesks={setDesks}
             />
           )}
 
@@ -157,7 +184,6 @@ const App = () => {
             <BookingModalReview
               desk={selectedDesk}
               onClose={handleCloseModal}
-              
             />
           )}
 

@@ -6,19 +6,41 @@ import authRoutes from "./routes/auth.routes";
 import deskRoutes from "./routes/desk.routes";
 import bookingRoutes from "./routes/booking.routes";
 import { requestLogger } from "./middlewares/logger";
+import { Server } from "socket.io";
+import { createServer } from "node:http";
 
 dotenv.config();
 
 connectDB();
 
 const app: Application = express();
+const httpServer = createServer(app);
+
+const io = new Server(httpServer, {
+  cors: {
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    methods: ["GET", "POST", "PATCH"],
+    credentials: true,
+  },
+});
 
 app.use(
   cors({
-    origin: "http://localhost:3000", // exact origin, not '*'
-    credentials: true, // allow cookies/auth headers
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    credentials: true,
   }),
 );
+
+app.locals.io = io;
+
+io.on("connection", (socket) => {
+  console.log("Client connected:", socket.id);
+
+  socket.on("disconnect", () => {
+    console.log("Client disconnected:", socket.id);
+  });
+});
+
 app.use(express.json());
 
 // Logger Middleware
@@ -41,6 +63,6 @@ app.get("/api/health", (req: Request, res: Response) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+httpServer.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

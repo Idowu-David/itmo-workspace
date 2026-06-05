@@ -39,7 +39,7 @@ export const makeBookingRequest = async (req: Request, res: Response) => {
     if (!desk) {
       return res.status(404).json({
         status: "error",
-        message: "Desk not foundd",
+        message: "Desk not found",
       });
     }
 
@@ -70,14 +70,14 @@ export const makeBookingRequest = async (req: Request, res: Response) => {
 
     const newBooking = await createNewBooking(bookingData);
 
-    console.log("NEW BOOKING", newBooking);
-
     if (!newBooking) {
       return res.status(400).json({
         status: "error",
         message: "Booking could not be created",
       });
     }
+
+    await updateDeskStatus(newBooking, "pending", newBooking._id);
 
     return res.status(201).json({
       status: "success",
@@ -89,6 +89,7 @@ export const makeBookingRequest = async (req: Request, res: Response) => {
     return res.status(500).json({
       status: "error",
       message: "Internal server error occured",
+      error,
     });
   }
 };
@@ -302,6 +303,25 @@ export const checkinBooking = async (req: Request, res: Response) => {
     res.status(500).json({
       status: "error",
       message: "Server error",
+      error,
+    });
+  }
+};
+
+export const myBooking = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user!.id;
+    const existingBooking = await checkExistingBooking(userId);
+
+    return res.status(200).json({
+      status: "success",
+      data: existingBooking ?? null,
+    });
+  } catch (error) {
+    console.error("Error occured: ", error);
+    return res.status(500).json({
+      status: "error",
+      message: "Internal server error occured",
       error,
     });
   }

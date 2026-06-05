@@ -27,11 +27,16 @@ const DeskCard: React.FC<DeskCardProps> = ({ label, status, onClick }) => {
       disabled={status !== "available"}
       onClick={onClick}
       className={`
-        w-9/10 rounded-2xl flex flex-col items-center justify-center py-3 ${getDeskStyles(status)}
+        w-9/10 rounded-2xl flex flex-col items-center justify-center py-3 active:scale-[0.95] shadow-md ${getDeskStyles(status)}
         `}
     >
       <div className="rounded-full bg-white flex items-center justify-center relative w-20 h-20">
-        <Image fill alt={"Desk"} src="/images/desk.png" className="object-contain p-3"/>
+        <Image
+          fill
+          alt={"Desk"}
+          src="/images/desk.png"
+          className="object-contain p-3"
+        />
       </div>
       <span className="text-xl font-semibold mt-1">
         {status === "pending" ? "UNDER REVIEW" : label}

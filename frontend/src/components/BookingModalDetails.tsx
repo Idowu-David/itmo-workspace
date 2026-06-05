@@ -2,24 +2,27 @@
 
 import { Desk } from "@/app/page";
 import api from "@/lib/api";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { FiUpload } from "react-icons/fi";
 import axios from "axios";
 import clsx from "clsx";
+import { IBooking } from "../../../backend/src/models/Booking";
 
 interface IBookingModal {
   desk: Desk;
   onClose: () => void;
   onContinue: () => void;
-  setHasPendingBooking: React.Dispatch<React.SetStateAction<boolean>>;
+  setActiveBooking: Dispatch<SetStateAction<IBooking | null>>;
+  setDesks: Dispatch<SetStateAction<Desk[]>>;
 }
 
 const BookingModalDetails = ({
   desk,
   onClose,
   onContinue,
-  setHasPendingBooking,
+  setActiveBooking,
+  setDesks,
 }: IBookingModal) => {
   const [name, setName] = useState("");
   const [purpose, setPurpose] = useState("");
@@ -49,13 +52,17 @@ const BookingModalDetails = ({
       setError("");
       setLoading(true);
 
-      await api.post("/booking", formData, {
+      const response = await api.post("/booking", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      setHasPendingBooking(true);
+      setDesks((prev) =>
+        prev.map((d) => (d.id === desk.id ? { ...d, status: "pending" } : d)),
+      );
+      setActiveBooking(response.data.data);
+
       onContinue();
     } catch (error) {
       if (axios.isAxiosError(error)) {

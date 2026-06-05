@@ -10,7 +10,7 @@ interface IToken {
 }
 
 const generateToken = ({ id, role }: IToken): string => {
-  return jwt.sign({ id, role }, process.env.JWT_SECRET!, { expiresIn: "1h" });
+  return jwt.sign({ id, role }, process.env.JWT_SECRET!, { expiresIn: "2h" });
 };
 
 // POST /api/auth/register
@@ -96,7 +96,7 @@ export const login = async (req: Request, res: Response) => {
     if (!isMatch) {
       return res.status(401).json({
         status: "error",
-        message: "Invalid credentials",
+        message: "Password is incorrect",
       });
     }
 
