@@ -11,7 +11,7 @@ export interface IBookingInput {
 }
 
 export interface IBooking extends IBookingInput, Document {
-  status: "pending" | "approved" | "rejected" | "checked-in" | "expired";
+  status: "pending" | "approved" | "rejected" | "checked-in" | "expired" | "cancelled";
   approvedAt?: Date;
 }
 
@@ -25,7 +25,7 @@ const BookingSchema: Schema = new Schema(
     proofOfWork: { type: String, required: true },
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected", "checked-in", "expired"],
+      enum: ["pending", "approved", "rejected", "checked-in", "expired", "cancelled"],
       default: "pending",
     },
     approvedAt: { type: Date },

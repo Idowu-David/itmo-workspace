@@ -160,6 +160,18 @@ export const approveBooking = async (req: Request, res: Response) => {
 
     startGracePeriod(booking, req.app.locals.io);
 
+    const io = req.app.locals.io;
+
+    io.emit("desk-update", {
+      deskId: booking.deskId,
+      status: "pending",
+    });
+
+    // emit specifically to the student who booked
+    io.to(booking.userId.toString()).emit("booking-approved", {
+      booking,
+    });
+
     return res.status(200).json({
       status: "success",
       message: "Booking approved",
@@ -305,6 +317,53 @@ export const checkinBooking = async (req: Request, res: Response) => {
       message: "Server error",
       error,
     });
+  }
+};
+
+// PATCH /api/booking/:id/cancel
+export const cancelBooking = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const userId = (req as any).user.id;
+    const io = req.app.locals.io;
+
+    const booking = await fetchBookingByID(String(id));
+
+    if (!booking) {
+      return res.status(404).json({
+        status: "error",
+        message: "Booking not found",
+      });
+    }
+
+    if (booking.userId.toString() !== userId) {
+      return res
+        .status(403)
+        .json({ status: "error", message: "Not your booking" });
+    }
+
+    if (!["pending", "approved"].includes(booking.status)) {
+      return res
+        .status(400)
+        .json({ status: "error", message: "Booking cannot be cancelled" });
+    }
+
+    booking.status = "cancelled";
+    await booking.save();
+
+    await updateDeskStatus(booking, "available");
+
+    io.emit("desk-update", {
+      deskId: booking.deskId,
+      status: "available",
+    });
+
+    return res.status(200).json({
+      status: "success",
+      message: "Booking cancelled",
+    });
+  } catch (error) {
+    return res.status(500).json({ status: "error", message: "Server error" });
   }
 };
 

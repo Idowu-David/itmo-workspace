@@ -9,6 +9,7 @@ import api from "@/lib/api";
 import { useEffect, useState } from "react";
 import { IBooking } from "../../../backend/src/models/Booking";
 import socket from "@/lib/socket";
+import ApprovedBookingModal from "@/components/ApprovedBookingModal";
 
 export interface Desk {
   id: string;
@@ -28,6 +29,18 @@ const App = () => {
 
   useEffect(() => {
     socket.connect();
+
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        if (user?.id) {
+          socket.emit("join", user.id);
+        }
+      } catch (e) {
+        console.error("Failed to parse user from localStorage");
+      }
+    }
 
     socket.on("desk-update", ({ deskId, status }) => {
       setDesks((prev) =>
@@ -121,12 +134,16 @@ const App = () => {
   //   },
   // ];
 
-  // alert(activeBook)
-
   const handleDeskClick = (desk: Desk) => {
-    if (activeBooking) return;
     setSelectedDesk(desk);
+    if (activeBooking) {
+      setIsModalOpen(true);
+      setBookingStep(3);
+      return;
+    }
+    if (desk.status !== "available") return;
     setIsModalOpen(true);
+    setBookingStep(1);
   };
 
   const handleCloseModal = () => {
@@ -134,8 +151,6 @@ const App = () => {
     setSelectedDesk(null);
     setBookingStep(1);
   };
-
-  // console.log("PENDING:", activeBook);
 
   return (
     <div className="flex flex-col items-center mb-10">
@@ -146,7 +161,7 @@ const App = () => {
           WELCOME TO ITMO WORKSPACE BOOKING PAGE!
         </p>
 
-        <div className="w-full bg-white shadow-md border rounded-[30px] p-5">
+        <div className="w-full bg-white shadow-lg rounded-[30px] p-5">
           <div className="flex flex-col justify-center font-bold text-xl mb-5 gap-2">
             <div className="flex gap-3">
               <p className="w-10.5 h-7 bg-[#16A34A33] rounded-md text-center">
@@ -184,17 +199,25 @@ const App = () => {
             <BookingModalReview
               desk={selectedDesk}
               onClose={handleCloseModal}
+              booking={activeBooking}
+              setActiveBooking={setActiveBooking}
             />
           )}
+
+          {/* <ApprovedBookingModal
+            desk={selectedDesk}
+            booking={activeBooking}
+            onClose={handleCloseModal}
+          /> */}
 
           <div className="w-full max-w-2xl mb-10">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 place-items-center">
               {desks.map((desk) => (
                 <DeskCard
                   key={desk.id}
-                  label={desk.deskNumber}
-                  status={desk.status}
+                  desk={desk}
                   onClick={() => handleDeskClick(desk)}
+                  activeBooking={activeBooking}
                 />
               ))}
             </div>

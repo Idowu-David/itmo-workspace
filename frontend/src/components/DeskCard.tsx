@@ -1,12 +1,14 @@
 import { Desk } from "@/app/page";
+import { FileSearch2 } from "lucide-react";
 import Image from "next/image";
+import { IBooking } from "../../../backend/src/models/Booking";
 
 export type DeskStatus = "available" | "booked" | "hold";
 
 interface DeskCardProps {
-  label: string;
-  status: string;
+  desk: Desk;
   onClick?: () => void;
+  activeBooking?: IBooking | null;
 }
 
 const getDeskStyles = (status: string) => {
@@ -20,26 +22,38 @@ const getDeskStyles = (status: string) => {
   }
 };
 
-const DeskCard: React.FC<DeskCardProps> = ({ label, status, onClick }) => {
+const DeskCard: React.FC<DeskCardProps> = ({
+  desk,
+  onClick,
+  activeBooking,
+}) => {
+  const isMyDesk = activeBooking?.deskId?.toString() === desk?.id;
+  const deskIcon = (
+    <Image
+      fill
+      alt={"Desk"}
+      src="/images/desk.png"
+      className="object-contain p-3"
+    />
+  );
+
+  const reviewIcon = <FileSearch2 size={48} color="#22222299" />;
+
   return (
     <button
       type="button"
-      disabled={status !== "available"}
+      disabled={desk.status !== "available"}
       onClick={onClick}
       className={`
-        w-9/10 rounded-2xl flex flex-col items-center justify-center py-3 active:scale-[0.95] shadow-md ${getDeskStyles(status)}
+        w-9/10 rounded-2xl flex flex-col items-center justify-center py-3 active:scale-[0.95] shadow-md ${getDeskStyles(desk.status)}
+        ${isMyDesk ? "ring-2 ring-bg-[#22222299]" : ""}
         `}
     >
       <div className="rounded-full bg-white flex items-center justify-center relative w-20 h-20">
-        <Image
-          fill
-          alt={"Desk"}
-          src="/images/desk.png"
-          className="object-contain p-3"
-        />
+        {desk.status === "pending" ? reviewIcon : deskIcon}
       </div>
       <span className="text-xl font-semibold mt-1">
-        {status === "pending" ? "UNDER REVIEW" : label}
+        {desk.status === "pending" ? "UNDER REVIEW" : desk.deskNumber}
       </span>
     </button>
   );

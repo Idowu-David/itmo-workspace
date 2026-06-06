@@ -7,7 +7,7 @@ import { IoClose } from "react-icons/io5";
 import { FiUpload } from "react-icons/fi";
 import axios from "axios";
 import clsx from "clsx";
-import { IBooking } from "../../../backend/src/models/Booking";
+import { IBooking } from "../../../../backend/src/models/Booking";
 
 interface IBookingModal {
   desk: Desk;
@@ -46,13 +46,15 @@ const BookingModalDetails = ({
     formData.append("deskId", desk.id);
     formData.append("proofOfWork", proof);
 
+    const token = localStorage.getItem("token");
+
     try {
       setError("");
       setLoading(true);
 
       const response = await api.post("/booking", formData, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
         },
       });
 

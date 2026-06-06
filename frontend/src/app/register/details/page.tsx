@@ -52,8 +52,8 @@ const Details = () => {
         password,
       });
 
-      localStorage.setItem("token", response.data.data.token);
-      localStorage.removeItem("email");
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
 
       router.push("/");
     } catch (error) {

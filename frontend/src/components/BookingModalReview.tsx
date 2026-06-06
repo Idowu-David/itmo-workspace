@@ -4,13 +4,34 @@ import { Desk } from "@/app/page";
 import { FileSearch2 } from "lucide-react";
 import { IoInformationCircle } from "react-icons/io5";
 import { IoClose } from "react-icons/io5";
+import { IBooking } from "../../../backend/src/models/Booking";
+import api from "@/lib/api";
+import { Dispatch, SetStateAction } from "react";
 
 interface IBookingModal {
   desk: Desk;
   onClose: () => void;
+  booking: IBooking | null;
+  setActiveBooking: Dispatch<SetStateAction<IBooking | null>>;
 }
 
-const BookingModalReview = ({ desk, onClose }: IBookingModal) => {
+const BookingModalReview = ({
+  desk,
+  onClose,
+  booking,
+  setActiveBooking,
+}: IBookingModal) => {
+  const handleCancelBooking = async () => {
+    try {
+      if (!booking) return;
+      await api.patch(`/booking/${booking._id}/cancel`);
+
+      setActiveBooking(null);
+      onClose();
+    } catch (error) {
+      console.error("Cancel failed", error);
+    }
+  };
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl relative">
@@ -33,7 +54,7 @@ const BookingModalReview = ({ desk, onClose }: IBookingModal) => {
               Back to Homepage
             </button>
             <button
-              onClick={onClose}
+              onClick={handleCancelBooking}
               className="p-3 border-red-300  border-2 px-10 text-red-300 rounded-xl mb-6"
             >
               Cancel Booking

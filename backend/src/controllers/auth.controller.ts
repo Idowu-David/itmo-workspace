@@ -10,7 +10,7 @@ interface IToken {
 }
 
 const generateToken = ({ id, role }: IToken): string => {
-  return jwt.sign({ id, role }, process.env.JWT_SECRET!, { expiresIn: "2h" });
+  return jwt.sign({ id, role }, process.env.JWT_SECRET!, { expiresIn: "7d" });
 };
 
 // POST /api/auth/register
@@ -53,13 +53,14 @@ export const register = async (req: Request, res: Response) => {
     return res.status(201).json({
       status: "success",
       message: "User account created successfully",
-      data: {
-        id: newUser._id,
+      token,
+      user: {
+        id: newUser._id.toString(),
         firstName: firstName,
         lastName: lastName,
         email: newUser.email,
         role: newUser.role,
-        token,
+        
       },
     });
   } catch (error) {
@@ -106,8 +107,8 @@ export const login = async (req: Request, res: Response) => {
       status: "success",
       message: "Login successful",
       token: token,
-      data: {
-        id: user._id,
+      user: {
+        id: user._id.toString(),
         name: user.firstName + user.lastName,
         email: user.email,
         role: user.role,

@@ -37,7 +37,9 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${satoshi.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-satoshi">{children}</body>
+      <body className="min-h-full flex flex-col font-satoshi bg-[#F7F9FA]">
+        {children}
+      </body>
     </html>
   );
 }

@@ -34,7 +34,7 @@ const Details = () => {
       });
 
       localStorage.setItem("token", response.data.token);
-      localStorage.removeItem("email");
+      localStorage.setItem("user", JSON.stringify(response.data.user));
 
       router.push("/");
     } catch (error) {
