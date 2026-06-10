@@ -79,7 +79,7 @@ const BookingModalDetails = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center z-50 justify-center p-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center z-50 justify-center p-4">
       <div className="bg-white rounded-2xl p-8 w-full max-w-sm shadow-xl">
         <div className="flex flex-col items-center">
           <div className="w-full bg-[#8AA8E9] py-4 pl-4 rounded-xl mb-4 text-xl text-white relative flex justify-between pr-4">

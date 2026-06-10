@@ -12,7 +12,7 @@ interface IBookingModal {
 
 const BookingModal = ({ desk, onClose, onConfirm }: IBookingModal) => {
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
         <div className="flex flex-col items-center justify-center">
           <div className="w-48 mb-8 flex items-center justify-center">

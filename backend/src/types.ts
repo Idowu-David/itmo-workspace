@@ -15,3 +15,8 @@ export interface AuthRequest extends Request {
     role: "student" | "admin";
   };
 }
+
+export interface IDesk {
+  _id: string;
+  deskNumber: number;
+}

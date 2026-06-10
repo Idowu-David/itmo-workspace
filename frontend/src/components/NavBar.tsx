@@ -17,13 +17,13 @@ const NavBar = ({ text }: NavBarProps) => {
   }, []);
 
   return (
-    <nav className="w-full h-18 bg-white flex justify-between px-8 items-center shadow-md">
+    <nav className="w-full h-16 bg-white flex justify-between px-8 items-center shadow-md">
       <div className="flex items-center gap-3 text-2xl font-bold">
-        <div className="bg-[#1E3A5F] h-12 w-12 rounded-full grid grid-cols-2 justify-items-center place-items-center p-2 shadow-xl">
-          <div className="w-3 h-3 border-white border-4 "></div>
-          <div className="w-3 h-3 border-white border-4"></div>
-          <div className="w-3 h-3 border-white border-4"></div>
-          <div className="w-3 h-3 border-white border-4"></div>
+        <div className="bg-[#1E3A5F] h-10 w-10 rounded-full grid grid-cols-2 justify-items-center place-items-center p-2 shadow-xl">
+          <div className="w-2.5 h-2.5 border-white border-3 "></div>
+          <div className="w-2.5 h-2.5 border-white border-3"></div>
+          <div className="w-2.5 h-2.5 border-white border-3"></div>
+          <div className="w-2.5 h-2.5 border-white border-3"></div>
         </div>
         <p>{text}</p>
       </div>

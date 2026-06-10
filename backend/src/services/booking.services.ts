@@ -16,10 +16,11 @@ export const createNewBooking = async (bookingData: IBookingInput) => {
 };
 
 export const fetchBooking = async (status?: BookingStatus) => {
-  return await Booking.find(status ? { status } : {});
+  return await Booking.find(status ? { status } : {})
+    .populate("deskId", "deskNumber")
+    .sort({ createdAt: -1 })
+    .lean();
 };
-
 export const fetchBookingByID = async (id: string) => {
   return await Booking.findById({ _id: id });
 };
-

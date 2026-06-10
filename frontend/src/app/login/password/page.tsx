@@ -36,7 +36,8 @@ const Details = () => {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
-      router.push("/");
+      if (response.data.user.role === "admin") router.push("/admin");
+      else router.push("/");
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const status = error.response?.status;

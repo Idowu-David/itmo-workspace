@@ -79,6 +79,12 @@ export const makeBookingRequest = async (req: Request, res: Response) => {
 
     await updateDeskStatus(newBooking, "pending", newBooking._id);
 
+    const io = req.app.locals.io;
+
+    io.emit("new-booking", {
+      booking: newBooking,
+    });
+
     return res.status(201).json({
       status: "success",
       message: "Booking created succesfully",
@@ -94,6 +100,7 @@ export const makeBookingRequest = async (req: Request, res: Response) => {
   }
 };
 
+// GET /api/booking
 export const fetchAllBooking = async (req: Request, res: Response) => {
   try {
     const status =
@@ -128,6 +135,7 @@ export const fetchAllBooking = async (req: Request, res: Response) => {
 export const approveBooking = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const io = req.app.locals.io;
 
     if (!mongoose.isValidObjectId(id)) {
       res.status(400).json({
@@ -160,16 +168,16 @@ export const approveBooking = async (req: Request, res: Response) => {
 
     startGracePeriod(booking, req.app.locals.io);
 
-    const io = req.app.locals.io;
-
     io.emit("desk-update", {
       deskId: booking.deskId,
       status: "pending",
     });
 
+    const desk = await getDeskByID(booking.deskId);
     // emit specifically to the student who booked
     io.to(booking.userId.toString()).emit("booking-approved", {
       booking,
+      desk,
     });
 
     return res.status(200).json({

@@ -5,11 +5,16 @@ import { FileSearch2 } from "lucide-react";
 import { IoClose } from "react-icons/io5";
 import CountdownTimer from "./CountdownTimer";
 import { IBooking } from "../../../backend/src/models/Booking";
+import api from "@/lib/api";
+import { Dispatch, SetStateAction, useState } from "react";
+import CheckinModal from "./CheckinModal";
 
 interface IBookingModal {
   desk: Desk | null;
   onClose: () => void;
   booking: IBooking | null;
+  setActiveBooking: Dispatch<SetStateAction<IBooking | null>>;
+  onContinue: () => void;
 }
 
 const SuccessIcon = () => (
@@ -43,15 +48,35 @@ const SuccessIcon = () => (
   </svg>
 );
 
-const BookingApprovedModal = ({ desk, onClose, booking }: IBookingModal) => {
+const BookingApprovedModal = ({
+  desk,
+  onClose,
+  booking,
+  setActiveBooking,
+  onContinue,
+}: IBookingModal) => {
+  console.log("SELECTED DESK FROM APPROVED", desk);
+
   if (!booking) return null;
 
+  const handleCancelBooking = async () => {
+    try {
+      if (!booking) return;
+      await api.patch(`/booking/${booking._id}/cancel`);
+
+      setActiveBooking(null);
+      onClose();
+    } catch (error) {
+      console.error("Cancel failed", error);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl relative">
-        <button onClick={onClose} className=" absolute right-6">
-          <IoClose size={24} />
-        </button>
+        {/* <button onClick={onClose} className=" absolute right-6">
+          <IoClose size={26} />
+        </button> */}
         <div className="flex flex-col items-center justify-center">
           <div className="flex items-center justify-center pt-7 pb-2">
             <SuccessIcon />
@@ -60,19 +85,19 @@ const BookingApprovedModal = ({ desk, onClose, booking }: IBookingModal) => {
           <div className="flex items-center justify-center gap-2 mb-6">
             <span className="text-gray-500 text-sm">Time Left:</span>
             <div className="bg-gray-800 text-white text-sm px-3 py-1 rounded-full flex items-center gap-1">
-              🕐 <CountdownTimer approvedAt={booking.approvedAt!} />
+              <CountdownTimer approvedAt={booking.approvedAt!} />
             </div>
           </div>
           <div className="grid w-full my-3 space-y-3">
             <button
-              onClick={onClose}
-              className="p-3 bg-[#2C5CC5] rounded-xl border-2 border-[#2C5CC5] px-10 text-white"
+              onClick={onContinue}
+              className="p-3 bg-[#2C5CC5] rounded-xl border-2 border-[#2C5CC5] px-10 text-white active:scale[0.95]"
             >
-              Back to Homepage
+              Check in
             </button>
             <button
-              onClick={onClose}
-              className="p-3 border-red-300  border-2 px-10 text-red-300 rounded-xl mb-6"
+              onClick={handleCancelBooking}
+              className="p-3 border-red-300  border-2 px-10 text-red-300 rounded-xl mb-6 active:scale[0.95]"
             >
               Cancel Booking
             </button>

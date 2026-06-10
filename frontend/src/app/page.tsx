@@ -8,8 +8,11 @@ import NavBar from "@/components/NavBar";
 import api from "@/lib/api";
 import { useEffect, useState } from "react";
 import { IBooking } from "../../../backend/src/models/Booking";
+// TODO : Fix IBooking type import
+// import {IBooking} from "../types"
 import socket from "@/lib/socket";
 import ApprovedBookingModal from "@/components/ApprovedBookingModal";
+import CheckinModal from "@/components/CheckinModal";
 
 export interface Desk {
   id: string;
@@ -22,10 +25,13 @@ const App = () => {
   const [desks, setDesks] = useState<Desk[]>([]);
   const [selectedDesk, setSelectedDesk] = useState<Desk | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [totalDesks, setTotalDesks] = useState(0);
-  const [availableDesks, setAvailableDesks] = useState(0);
   const [bookingStep, setBookingStep] = useState(1);
   const [activeBooking, setActiveBooking] = useState<IBooking | null>(null);
+
+  const totalDesks = desks.length;
+  const availableDesks = desks.filter(
+    (desk) => desk.status === "available",
+  ).length;
 
   useEffect(() => {
     socket.connect();
@@ -46,6 +52,24 @@ const App = () => {
       setDesks((prev) =>
         prev.map((d) => (d.id === deskId ? { ...d, status } : d)),
       );
+
+      if (status === "available") {
+        setActiveBooking((prev) => {
+          if (prev?.deskId?.toString() === deskId) {
+            setSelectedDesk(null);
+            setIsModalOpen(false);
+            setBookingStep(1);
+            return null;
+          }
+          return prev;
+        });
+      }
+    });
+
+    socket.on("booking-approved", ({ booking, desk }) => {
+      setActiveBooking(booking);
+      console.log("DESK:", desk);
+      setSelectedDesk(desk);
     });
 
     const getUserBooking = async () => {
@@ -58,6 +82,9 @@ const App = () => {
         });
 
         setActiveBooking(booking.data.data);
+        // if (booking.data.data?.status === "approved") {
+        //   setShowApprovedModal(true);
+        // }
       } catch (error) {
         console.log("Error from fetch user booking", error);
       }
@@ -65,8 +92,6 @@ const App = () => {
     const fetchDesks = async () => {
       try {
         const response = await api.get("/desks");
-        setTotalDesks(response.data.data.desks.length);
-        setAvailableDesks(response.data.data.availableDesks);
         setDesks(
           response.data.data.desks.map((desk: any) => ({
             id: desk._id,
@@ -135,6 +160,12 @@ const App = () => {
   // ];
 
   const handleDeskClick = (desk: Desk) => {
+    if (
+      activeBooking?.status === "approved" ||
+      activeBooking?.status === "checked-in"
+    )
+      return;
+
     setSelectedDesk(desk);
     if (activeBooking) {
       setIsModalOpen(true);
@@ -147,17 +178,28 @@ const App = () => {
   };
 
   const handleCloseModal = () => {
+    if (activeBooking?.status === "approved") return;
     setIsModalOpen(false);
-    setSelectedDesk(null);
     setBookingStep(1);
   };
+
+  const handleCheckIn = () => {
+    setIsModalOpen(true);
+    setBookingStep(4);
+  };
+
+  console.log({
+    isModalOpen,
+    bookingStep,
+    selectedDesk,
+  });
 
   return (
     <div className="flex flex-col items-center mb-10">
       <NavBar />
 
       <main className="flex flex-col px-4 max-w-3xl gap-6 lg: ">
-        <p className="text-4xl text-center font-semibold leading-12.5 text-[#020617] mt-10">
+        <p className="text-4xl text-center font-semibold leading-12.5 text-[#020617] mt-6">
           WELCOME TO ITMO WORKSPACE BOOKING PAGE!
         </p>
 
@@ -204,12 +246,30 @@ const App = () => {
             />
           )}
 
-          {/* <ApprovedBookingModal
-            desk={selectedDesk}
-            booking={activeBooking}
-            onClose={handleCloseModal}
-          /> */}
+          {bookingStep !== 4 && activeBooking?.status === "approved" && (
+            <ApprovedBookingModal
+              desk={selectedDesk}
+              booking={activeBooking}
+              onClose={handleCloseModal}
+              setActiveBooking={setActiveBooking}
+              onContinue={handleCheckIn}
+            />
+          )}
 
+          {activeBooking?.status === "approved" &&
+            isModalOpen &&
+            selectedDesk &&
+            bookingStep === 4 && (
+              <CheckinModal
+                booking={activeBooking}
+                desk={selectedDesk}
+                onClose={() => {
+                  setIsModalOpen(false);
+                  setBookingStep(1);
+                }}
+                setActiveBooking={setActiveBooking}
+              />
+            )}
           <div className="w-full max-w-2xl mb-10">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 place-items-center">
               {desks.map((desk) => (

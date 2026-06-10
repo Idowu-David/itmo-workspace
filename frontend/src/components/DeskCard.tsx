@@ -37,7 +37,7 @@ const DeskCard: React.FC<DeskCardProps> = ({
     />
   );
 
-  const reviewIcon = <FileSearch2 size={48} color="#22222299" />;
+  const reviewIcon = <FileSearch2 size={42} color="#22222299" />;
 
   return (
     <button
@@ -45,14 +45,14 @@ const DeskCard: React.FC<DeskCardProps> = ({
       disabled={desk.status !== "available"}
       onClick={onClick}
       className={`
-        w-9/10 rounded-2xl flex flex-col items-center justify-center py-3 active:scale-[0.95] shadow-md ${getDeskStyles(desk.status)}
+        w-full rounded-2xl flex flex-col items-center justify-center py-3 active:scale-[0.95] shadow-md ${getDeskStyles(desk.status)}
         ${isMyDesk ? "ring-2 ring-bg-[#22222299]" : ""}
         `}
     >
-      <div className="rounded-full bg-white flex items-center justify-center relative w-20 h-20">
+      <div className="rounded-full bg-white flex items-center justify-center relative w-16 h-16">
         {desk.status === "pending" ? reviewIcon : deskIcon}
       </div>
-      <span className="text-xl font-semibold mt-1">
+      <span className="text- font-semibold mt-1">
         {desk.status === "pending" ? "UNDER REVIEW" : desk.deskNumber}
       </span>
     </button>

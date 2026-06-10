@@ -16,9 +16,14 @@ connectDB();
 const app: Application = express();
 const httpServer = createServer(app);
 
+const allowedOrigins = [
+  process.env.CLIENT_URL || "http://192.168.84.11:3000",
+  "http://localhost:3000",
+];
+
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PATCH"],
     credentials: true,
   },
@@ -26,7 +31,7 @@ const io = new Server(httpServer, {
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: allowedOrigins,
     credentials: true,
   }),
 );
