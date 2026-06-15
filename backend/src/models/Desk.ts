@@ -12,7 +12,7 @@ const DeskSchema: Schema = new Schema(
     deskNumber: { type: String, required: true, uniqure: true, min: 1, max: 8 },
     status: {
       type: String,
-      enum: ["available", "pending", "occupied"],
+      enum: ["available", "pending", "booked"],
     },
     currentBookingId: {
       type: Schema.Types.ObjectId,

@@ -8,6 +8,7 @@ import bookingRoutes from "./routes/booking.routes";
 import { requestLogger } from "./middlewares/logger";
 import { Server } from "socket.io";
 import { createServer } from "node:http";
+import path from "path";
 
 dotenv.config();
 
@@ -17,7 +18,7 @@ const app: Application = express();
 const httpServer = createServer(app);
 
 const allowedOrigins = [
-  process.env.CLIENT_URL || "http://192.168.84.11:3000",
+  process.env.CLIENT_URL || "http://192.168.57.11:3000",
   "http://localhost:3000",
 ];
 
@@ -51,6 +52,8 @@ io.on("connection", (socket) => {
 });
 
 app.use(express.json());
+
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // Logger Middleware
 app.use("/api", requestLogger);

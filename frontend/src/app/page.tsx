@@ -8,8 +8,6 @@ import NavBar from "@/components/NavBar";
 import api from "@/lib/api";
 import { useEffect, useState } from "react";
 import { IBooking } from "../../../backend/src/models/Booking";
-// TODO : Fix IBooking type import
-// import {IBooking} from "../types"
 import socket from "@/lib/socket";
 import ApprovedBookingModal from "@/components/ApprovedBookingModal";
 import CheckinModal from "@/components/CheckinModal";
@@ -19,6 +17,7 @@ export interface Desk {
   status: string;
   deskNumber: string;
   available: number;
+  pin?: string;
 }
 
 const App = () => {
@@ -72,6 +71,10 @@ const App = () => {
       setSelectedDesk(desk);
     });
 
+    socket.on("booking-update", (booking) => {
+      setActiveBooking(booking);
+    });
+
     const getUserBooking = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -82,9 +85,6 @@ const App = () => {
         });
 
         setActiveBooking(booking.data.data);
-        // if (booking.data.data?.status === "approved") {
-        //   setShowApprovedModal(true);
-        // }
       } catch (error) {
         console.log("Error from fetch user booking", error);
       }
@@ -106,9 +106,16 @@ const App = () => {
 
     getUserBooking();
     fetchDesks();
+
+    return () => {
+      socket.off("desk-update");
+      socket.off("booking-approved");
+      socket.disconnect();
+    };
   }, []);
 
   // const desks: Desk[] = [
+
   //   {
   //     id: "1",
   //     status: "available",
@@ -159,6 +166,7 @@ const App = () => {
   //   },
   // ];
 
+  console.log("USER ACTIVE BOOKING: ", activeBooking);
   const handleDeskClick = (desk: Desk) => {
     if (
       activeBooking?.status === "approved" ||

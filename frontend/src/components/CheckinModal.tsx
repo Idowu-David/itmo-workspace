@@ -39,12 +39,6 @@ const CheckinModal = ({
     }
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    // setSelectedDesk(null);
-    setBookingStep(1);
-  };
-
   const handleCheckin = async () => {
     try {
       await api.patch(`/booking/${booking._id}/checkin`, { pin });
@@ -57,7 +51,7 @@ const CheckinModal = ({
         const message = error.response?.data?.message;
 
         console.log("status:", status);
-        console.log("message:", message); 
+        console.log("message:", message);
 
         if (status === 400) {
           setPinError(message || "Incorrect PIN");
@@ -100,7 +94,7 @@ const CheckinModal = ({
               ENTER
             </button>
             <button
-              type="button"
+              type="submit"
               onClick={handleCancelBooking}
               className="p-3 border-red-300  border-2 px-10 text-red-300 rounded-xl mb-6"
             >

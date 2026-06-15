@@ -3,7 +3,7 @@ import { FileSearch2 } from "lucide-react";
 import Image from "next/image";
 import { IBooking } from "../../../backend/src/models/Booking";
 
-export type DeskStatus = "available" | "booked" | "hold";
+export type DeskStatus = "available" | "booked" | "pending";
 
 interface DeskCardProps {
   desk: Desk;

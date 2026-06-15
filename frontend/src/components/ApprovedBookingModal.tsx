@@ -74,9 +74,7 @@ const BookingApprovedModal = ({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl relative">
-        {/* <button onClick={onClose} className=" absolute right-6">
-          <IoClose size={26} />
-        </button> */}
+        
         <div className="flex flex-col items-center justify-center">
           <div className="flex items-center justify-center pt-7 pb-2">
             <SuccessIcon />

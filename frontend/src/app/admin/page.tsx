@@ -6,8 +6,8 @@ import api from "@/lib/api";
 import socket from "@/lib/socket";
 import { useEffect, useState } from "react";
 import { Desk } from "../page";
-import BookingDetailModal from "@/components/BookingDetailModal";
 import { useRouter } from "next/navigation";
+import DeskPinCard from "@/components/DeskPinCard";
 
 export interface IBooking {
   _id: string;
@@ -26,20 +26,23 @@ export interface IBooking {
     | "checked-in"
     | "expired"
     | "cancelled";
+  createdAt: string;
 }
 
-const page = () => {
+const AdminPage = () => {
+  const router = useRouter();
+
   const [desks, setDesks] = useState<Desk[]>([]);
   const [bookings, setBookings] = useState<IBooking[]>([]);
-  const [selectedBooking, setSelectedBooking] = useState<IBooking | null>(null);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [deskPins, setDeskPins] = useState<Desk[]>([]);
 
   const totalDesks = desks.length;
+
   const availableDesks = desks.filter(
     (desk) => desk.status === "available",
   ).length;
   const pendingBookings = bookings.filter((b) => b.status === "pending").length;
-
-  const router = useRouter();
 
   const updateBookingStatus = (id: string, status: IBooking["status"]) => {
     setBookings((prev) =>
@@ -75,17 +78,15 @@ const page = () => {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
-    const userStr = localStorage.getItem("user");
-    if (userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        if (user?.id) socket.emit("join", user.id);
-      } catch (e) {
-        console.error("Failed to parse user from localStorage");
-      }
-    }
 
-    if (!user || user.role !== "admin") router.push("/");
+    if (!user || user.role !== "admin") {
+      setIsAuthorized(false);
+      router.push("/");
+    } else setIsAuthorized(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isAuthorized) return;
 
     socket.connect();
 
@@ -122,21 +123,44 @@ const page = () => {
         const response = await api.get("/booking", {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         setBookings(response.data.data);
       } catch (error) {
         console.error("Error while fetching bookings:", error);
       }
     };
 
+    const fetchDeskPins = async () => {
+      try {
+        const response = await api.get("/desks/pins");
+
+        setDeskPins(
+          response.data.data.map((desk: any) => ({
+            id: desk._id,
+            status: desk.status,
+            deskNumber: desk.deskNumber,
+            pin: desk.pin,
+          })),
+        );
+      } catch (error) {
+        console.error("Error while fetching desk pins:", error);
+      }
+    };
+
     fetchBookings();
     fetchDesks();
+    fetchDeskPins();
 
     return () => {
       socket.off("new-booking");
       socket.off("desk-update");
       socket.disconnect();
     };
-  }, []);
+  }, [isAuthorized]);
+
+  if (isAuthorized === null || isAuthorized == false) return null;
+
+  // console.log("DESK: ", deskPins);
 
   return (
     <div className="min-h-screen overflow-y-auto mb-10">
@@ -172,26 +196,26 @@ const page = () => {
             .map((booking) => (
               <BookingRequestCard
                 key={booking._id}
-                name={booking.name}
-                status={booking.status}
-                purpose={booking.purpose}
-                deskNumber={booking.deskId?.deskNumber!}
+                booking={booking}
                 onApprove={() => handleApprove(booking._id)}
                 onReject={() => handleReject(booking._id)}
               />
             ))}
         </div>
-      </main>
 
-      {/* Modal */}
-      <BookingDetailModal
-        booking={selectedBooking}
-        onClose={() => setSelectedBooking(null)}
-        onApprove={handleApprove}
-        onReject={handleReject}
-      />
+        <div className="grid grid-cols-2 gap-3 text-2xl mt-10">
+          {deskPins.map((desk) => (
+            <DeskPinCard
+              key={desk.deskNumber}
+              deskNumber={desk.deskNumber}
+              pin={desk.pin!}
+              status={desk.status}
+            />
+          ))}
+        </div>
+      </main>
     </div>
   );
 };
 
-export default page;
+export default AdminPage;

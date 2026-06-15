@@ -4,7 +4,7 @@ import { IBooking } from "../models/Booking";
 import { DeskStatus } from "../types";
 
 export const getAllDesks = async () => {
-  return await Desk.find({});
+  return await Desk.find({}).sort({ deskNumber: 1 });
 };
 
 export const checkDesk = async (id: string) => {

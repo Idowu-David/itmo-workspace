@@ -42,10 +42,7 @@ export const getDeskPins = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       status: "success",
-      data: desks.map((d) => ({
-        deskNumber: d.deskNumber,
-        pin: d.pin,
-      })),
+      data: desks
     });
   } catch (error) {
     return res.status(500).json({

@@ -305,8 +305,10 @@ export const checkinBooking = async (req: Request, res: Response) => {
       const io = req.app.locals.io;
       io.emit("desk-update", {
         deskId: booking.deskId,
-        status: "occupied",
+        status: "booked",
       });
+
+      io.emit("booking-update", booking);
 
       return res.status(200).json({
         status: "success",
