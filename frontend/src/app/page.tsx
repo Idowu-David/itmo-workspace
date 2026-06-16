@@ -65,6 +65,8 @@ const App = () => {
       // }
     });
 
+    alert(process.env.NEXT_PUBLIC_API_URL);
+    
     socket.on("booking-approved", ({ booking, desk }) => {
       setActiveBooking(booking);
       console.log("DESK:", desk);
