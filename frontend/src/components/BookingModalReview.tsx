@@ -13,6 +13,7 @@ interface IBookingModal {
   onClose: () => void;
   booking: IBooking | null;
   setActiveBooking: Dispatch<SetStateAction<IBooking | null>>;
+  onCancelComplete: () => void;
 }
 
 const BookingModalReview = ({
@@ -20,14 +21,14 @@ const BookingModalReview = ({
   onClose,
   booking,
   setActiveBooking,
+  onCancelComplete,
 }: IBookingModal) => {
   const handleCancelBooking = async () => {
     try {
       if (!booking) return;
       await api.patch(`/booking/${booking._id}/cancel`);
 
-      setActiveBooking(null);
-      onClose();
+      onCancelComplete();
     } catch (error) {
       console.error("Cancel failed", error);
     }

@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { Desk } from "../page";
 import { useRouter } from "next/navigation";
 import DeskPinCard from "@/components/DeskPinCard";
+import { InboxIcon } from "lucide-react";
 
 export interface IBooking {
   _id: string;
@@ -91,17 +92,28 @@ const AdminPage = () => {
     socket.connect();
 
     socket.on("desk-update", ({ deskId, status }) => {
-      console.log("desk-update received", deskId, status);
+      console.log("DESK ID FROM ADMIN: ", deskId);
 
-      setDesks((prev) =>
-        prev.map((d) => (d.id === deskId ? { ...d, status } : d)),
-      );
+      setDesks((prev) => {
+        const updated = prev.map((d) =>
+          d.id === deskId ? { ...d, status } : d,
+        );
+
+        console.log("updated desks", updated);
+
+        return updated;
+      });
     });
 
-    socket.on("new-booking", ({ booking }) => {
-      setBookings((prev) => [booking, ...prev]);
+    socket.on("booking-update", (booking) => {
+      setBookings((prev) => {
+        const exists = prev.some((b) => b._id === booking._id);
+        if (exists)
+          return prev.map((b) => (b._id === booking._id ? booking : b));
+        return [booking, ...prev];
+      });
     });
-
+    
     const fetchDesks = async () => {
       try {
         const response = await api.get("/desks");
@@ -152,11 +164,15 @@ const AdminPage = () => {
     fetchDeskPins();
 
     return () => {
-      socket.off("new-booking");
+      socket.off("booking-update");
       socket.off("desk-update");
       socket.disconnect();
     };
   }, [isAuthorized]);
+
+  useEffect(() => {
+    console.log("DESKS CHANGED", desks);
+  }, [desks]);
 
   if (isAuthorized === null || isAuthorized == false) return null;
 
@@ -166,7 +182,7 @@ const AdminPage = () => {
     <div className="min-h-screen overflow-y-auto mb-10">
       <NavBar text="ITMO Admin" />
       <main className="px-2">
-        <p className="py-6 text-4xl font-semibold tracking-wide">Dashboard</p>
+        <p className="py-6 text-4xl font-semibold tracking-wide">DASHBOARD</p>
         <div className="grid grid-cols-2 w-full gap-4">
           <div className="p-4 bg-green-300 rounded-xl text-xl font-medium pl-6">
             Available
@@ -186,24 +202,33 @@ const AdminPage = () => {
           </div>
         </div>
 
-        <p className="py-8 text-4xl font-semibold tracking-wide">
-          Booking Requests
+        <p className="pt-8 pb-4 text-4xl font-semibold tracking-wide">
+          BOOKING REQUESTS
         </p>
 
-        <div className="border rounded-t-4xl border-b-0 shadow-xl">
-          {bookings
-            .filter((booking) => booking.status === "pending")
-            .map((booking) => (
-              <BookingRequestCard
-                key={booking._id}
-                booking={booking}
-                onApprove={() => handleApprove(booking._id)}
-                onReject={() => handleReject(booking._id)}
-              />
-            ))}
-        </div>
+        {!pendingBookings ? (
+          <div className="text-gray-400 font-semibold pl-10 text-2xl flex items-center gap-3">
+            <InboxIcon size={40} className="" />
+            <p>NO PENDING BOOKING</p>
+          </div>
+        ) : (
+          <div className="border rounded-t-4xl border-b-0 shadow-xl">
+            {bookings
+              .filter((booking) => booking.status === "pending")
+              .map((booking) => (
+                <BookingRequestCard
+                  key={booking._id}
+                  booking={booking}
+                  onApprove={() => handleApprove(booking._id)}
+                  onReject={() => handleReject(booking._id)}
+                />
+              ))}
+          </div>
+        )}
 
-        <div className="grid grid-cols-2 gap-3 text-2xl mt-10">
+        <p className="py-6 text-4xl font-semibold tracking-wide">DESK PINS</p>
+
+        <div className="grid grid-cols-2 gap-3 text-2xl">
           {deskPins.map((desk) => (
             <DeskPinCard
               key={desk.deskNumber}

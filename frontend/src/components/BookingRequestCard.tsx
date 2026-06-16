@@ -32,8 +32,6 @@ const BookingRequestCard = ({
     setOpenModal(false);
   };
 
-  console.log("OpEN MODAL", openModal);
-
   return (
     <div className="p-4 flex items-center flex-col border-b">
       <div
@@ -68,7 +66,6 @@ const BookingRequestCard = ({
           Reject
         </button>
       </div>
-      
 
       {openModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">

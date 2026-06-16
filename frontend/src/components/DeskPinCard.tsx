@@ -18,7 +18,6 @@ const getDeskStyles = (status: string) => {
 };
 
 const DeskPinCard = ({ deskNumber, pin, status }: IDeskPinProp) => {
-  console.log("status: ", status);
   return (
     <div className="">
       <div className={`p-2 rounded-xl ${getDeskStyles(status)}`}>

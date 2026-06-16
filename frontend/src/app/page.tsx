@@ -52,23 +52,38 @@ const App = () => {
         prev.map((d) => (d.id === deskId ? { ...d, status } : d)),
       );
 
-      if (status === "available") {
-        setActiveBooking((prev) => {
-          if (prev?.deskId?.toString() === deskId) {
-            setSelectedDesk(null);
-            setIsModalOpen(false);
-            setBookingStep(1);
-            return null;
-          }
-          return prev;
-        });
-      }
+      // if (status === "available") {
+      //   setActiveBooking((prev) => {
+      //     if (prev?.deskId?.toString() === deskId) {
+      //       setSelectedDesk(null);
+      //       setIsModalOpen(false);
+      //       setBookingStep(1);
+      //       return null;
+      //     }
+      //     return prev;
+      //   });
+      // }
     });
 
     socket.on("booking-approved", ({ booking, desk }) => {
       setActiveBooking(booking);
       console.log("DESK:", desk);
       setSelectedDesk(desk);
+    });
+
+    socket.on("booking-rejected", ({ booking, deskId }) => {
+      setActiveBooking(null);
+      setSelectedDesk(null);
+      setIsModalOpen(false);
+      setBookingStep(1);
+
+      setDesks((prev) =>
+        prev.map((d) =>
+          d.id === (deskId ?? booking?.deskId?.toString())
+            ? { ...d, status: "available" }
+            : d,
+        ),
+      );
     });
 
     socket.on("booking-update", (booking) => {
@@ -110,6 +125,7 @@ const App = () => {
     return () => {
       socket.off("desk-update");
       socket.off("booking-approved");
+      socket.off("booking-rejected");
       socket.disconnect();
     };
   }, []);
@@ -166,7 +182,6 @@ const App = () => {
   //   },
   // ];
 
-  console.log("USER ACTIVE BOOKING: ", activeBooking);
   const handleDeskClick = (desk: Desk) => {
     if (
       activeBooking?.status === "approved" ||
@@ -196,11 +211,13 @@ const App = () => {
     setBookingStep(4);
   };
 
-  console.log({
-    isModalOpen,
-    bookingStep,
-    selectedDesk,
-  });
+
+const handleCancelComplete = () => {
+  setActiveBooking(null);
+  setSelectedDesk(null);
+  setIsModalOpen(false);
+  setBookingStep(1);
+};
 
   return (
     <div className="flex flex-col items-center mb-10">
@@ -251,6 +268,7 @@ const App = () => {
               onClose={handleCloseModal}
               booking={activeBooking}
               setActiveBooking={setActiveBooking}
+              onCancelComplete={handleCancelComplete}
             />
           )}
 
