@@ -7,7 +7,7 @@ import { IoClose } from "react-icons/io5";
 import { FiUpload } from "react-icons/fi";
 import axios from "axios";
 import clsx from "clsx";
-import { IBooking } from "../../../backend/src/models/Booking";
+import { IBooking } from "@/types";
 
 interface IBookingModal {
   desk: Desk;

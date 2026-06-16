@@ -1,7 +1,7 @@
 import { Desk } from "@/app/page";
 import { FileSearch2 } from "lucide-react";
 import Image from "next/image";
-import { IBooking } from "../../../backend/src/models/Booking";
+import { IBooking } from "@/types";
 
 export type DeskStatus = "available" | "booked" | "pending";
 

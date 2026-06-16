@@ -3,7 +3,7 @@
 import { Desk } from "@/app/page";
 import { IoClose } from "react-icons/io5";
 import CountdownTimer from "./CountdownTimer";
-import { IBooking } from "../../../backend/src/models/Booking";
+import { IBooking } from "@/types";
 import api from "@/lib/api";
 import { Dispatch, SetStateAction, useState } from "react";
 import axios from "axios";

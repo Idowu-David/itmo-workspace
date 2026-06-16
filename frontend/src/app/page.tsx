@@ -7,10 +7,10 @@ import DeskCard from "@/components/DeskCard";
 import NavBar from "@/components/NavBar";
 import api from "@/lib/api";
 import { useEffect, useState } from "react";
-import { IBooking } from "../../../backend/src/models/Booking";
 import socket from "@/lib/socket";
 import ApprovedBookingModal from "@/components/ApprovedBookingModal";
 import CheckinModal from "@/components/CheckinModal";
+import { IBooking } from "@/types";
 
 export interface Desk {
   id: string;
@@ -211,13 +211,12 @@ const App = () => {
     setBookingStep(4);
   };
 
-
-const handleCancelComplete = () => {
-  setActiveBooking(null);
-  setSelectedDesk(null);
-  setIsModalOpen(false);
-  setBookingStep(1);
-};
+  const handleCancelComplete = () => {
+    setActiveBooking(null);
+    setSelectedDesk(null);
+    setIsModalOpen(false);
+    setBookingStep(1);
+  };
 
   return (
     <div className="flex flex-col items-center mb-10">

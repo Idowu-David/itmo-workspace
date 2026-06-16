@@ -4,10 +4,10 @@ import { Desk } from "@/app/page";
 import { FileSearch2 } from "lucide-react";
 import { IoClose } from "react-icons/io5";
 import CountdownTimer from "./CountdownTimer";
-import { IBooking } from "../../../backend/src/models/Booking";
 import api from "@/lib/api";
 import { Dispatch, SetStateAction, useState } from "react";
 import CheckinModal from "./CheckinModal";
+import { IBooking } from "@/types"
 
 interface IBookingModal {
   desk: Desk | null;

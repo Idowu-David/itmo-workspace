@@ -4,7 +4,7 @@ import { Desk } from "@/app/page";
 import { FileSearch2 } from "lucide-react";
 import { IoInformationCircle } from "react-icons/io5";
 import { IoClose } from "react-icons/io5";
-import { IBooking } from "../../../backend/src/models/Booking";
+import { IBooking } from "@/types";
 import api from "@/lib/api";
 import { Dispatch, SetStateAction } from "react";
 
