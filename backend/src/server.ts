@@ -18,7 +18,7 @@ const app: Application = express();
 const httpServer = createServer(app);
 
 const allowedOrigins = [
-  process.env.CLIENT_URL || "http://192.168.57.11:3000",
+  process.env.CLIENT_URL || "https://itmoworkspace.vercel.app",
   "http://localhost:3000",
 ];
 
