@@ -1,8 +1,27 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  allowedDevOrigins: ["192.168.137.1", "192.168.90.11", "172.16.150.137", '192.168.218.11', '192.168.1.89', '192.168.84.11'],
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "Cross-Origin-Opener-Policy",
+            value: "same-origin-allow-popups", // ← this is the fix
+          },
+        ],
+      },
+    ];
+  },
+  allowedDevOrigins: [
+    "192.168.137.1",
+    "192.168.90.11",
+    "172.16.150.137",
+    "192.168.218.11",
+    "192.168.1.89",
+    "192.168.84.11",
+  ],
   async rewrites() {
     return [
       {

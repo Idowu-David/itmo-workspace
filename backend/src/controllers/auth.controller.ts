@@ -2,7 +2,15 @@ import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import User from "../models/User";
-import { addNewUser, checkUserDataExists, checkUserExists, getUserByID } from "../services/auth.services";
+import {
+  addNewUser,
+  checkUserDataExists,
+  checkUserExists,
+  getUserByID,
+} from "../services/auth.services";
+import { OAuth2Client } from "google-auth-library";
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 interface IToken {
   id: string;
@@ -11,6 +19,61 @@ interface IToken {
 
 const generateToken = ({ id, role }: IToken): string => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET!, { expiresIn: "7d" });
+};
+
+// POST /api/auth/google
+export const googleLogin = async (req: Request, res: Response) => {
+  try {
+    const { email, given_name, family_name, googleId } = req.body;
+
+    if (!email || !googleId) {
+      return res.status(400).json({
+        status: "error",
+        message: "Invalid Google data",
+      });
+    }
+
+    let user = await User.findOne({ googleId });
+
+    if (!user) {
+      user = await User.findOne({ email });
+      if (user) {
+        user.googleId = googleId;
+        await user.save();
+      } else {
+        user = await User.create({
+          firstName: given_name || "User",
+          lastName: family_name || "",
+          email,
+          googleId,
+        });
+      }
+    }
+
+    const token = generateToken({
+      id: user._id.toString(),
+      role: user.role,
+    });
+
+    return res.status(200).json({
+      status: "success",
+      message: "Google login successful",
+      token,
+      user: {
+        id: user._id.toString(),
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error("Google login error:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "Google login failed",
+    });
+  }
 };
 
 // POST /api/auth/register
@@ -60,7 +123,6 @@ export const register = async (req: Request, res: Response) => {
         lastName: lastName,
         email: newUser.email,
         role: newUser.role,
-        
       },
     });
   } catch (error) {
@@ -128,21 +190,21 @@ export const getMe = async (req: Request, res: Response) => {
   try {
     const user = await getUserByID((req as any).user.id);
     if (!user) {
-    return res.status(404).json({
+      return res.status(404).json({
         status: "error",
-        message: "User not found"
-      })
+        message: "User not found",
+      });
     }
 
     res.status(200).json({
       status: "success",
       data: user,
-    })
+    });
   } catch (error) {
-    console.error(`An internal server error occured: ${error}`)
+    console.error(`An internal server error occured: ${error}`);
     return res.status(500).json({
       status: "error",
-      message: "Server error"
-    })
+      message: "Server error",
+    });
   }
-}
+};
