@@ -81,9 +81,14 @@ export const makeBookingRequest = async (req: Request, res: Response) => {
 
     const io = req.app.locals.io;
 
-    io.emit("new-booking", {
-      booking: newBooking,
+    console.log("DESK ID FROM CONTROLLER: ", newBooking.deskId);
+
+    io.emit("desk-update", {
+      deskId: newBooking.deskId,
+      status: "booked",
     });
+
+    io.emit("booking-update", newBooking);
 
     return res.status(201).json({
       status: "success",
@@ -197,6 +202,7 @@ export const approveBooking = async (req: Request, res: Response) => {
 export const rejectBooking = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const io = req.app.locals.io;
 
     if (!mongoose.isValidObjectId(id)) {
       res.status(400).json({
@@ -218,6 +224,17 @@ export const rejectBooking = async (req: Request, res: Response) => {
     await booking.save();
 
     await updateDeskStatus(booking, "available");
+
+    io.emit("desk-update", {
+      deskId: booking.deskId,
+      status: "available",
+    });
+
+    const desk = await getDeskByID(booking.deskId);
+    io.to(booking.userId.toString()).emit("booking-rejected", {
+      booking,
+      desk,
+    });
 
     return res.status(200).json({
       status: "success",
@@ -367,6 +384,8 @@ export const cancelBooking = async (req: Request, res: Response) => {
       deskId: booking.deskId,
       status: "available",
     });
+
+    io.emit("booking-update", booking);
 
     return res.status(200).json({
       status: "success",
