@@ -39,6 +39,11 @@ const CheckinModal = ({
     }
   };
 
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleCheckin();
+  };
+
   const handleCheckin = async () => {
     try {
       await api.patch(`/booking/${booking._id}/checkin`, { pin });
@@ -68,12 +73,15 @@ const CheckinModal = ({
         </button>
         <div className="flex flex-col items-center justify-center">
           <p className="text-3xl font-bold">Enter {desk?.deskNumber} Pin</p>
-          <form onSubmit={handleCheckin} className="w-3/4 text-3xl">
+          <form onSubmit={handleFormSubmit} className="w-3/4 text-3xl">
             <input
               className="border w-full h-12 my-2 text-center rounded-lg"
               value={pin}
               type="text"
-              onChange={(e) => setPin(e.target.value)}
+              onChange={(e) => {
+                setPin(e.target.value);
+                setPinError("");
+              }}
             />
           </form>
           {pinError && (
@@ -94,7 +102,7 @@ const CheckinModal = ({
               ENTER
             </button>
             <button
-              type="submit"
+              type="button"
               onClick={handleCancelBooking}
               className="p-3 border-red-300  border-2 px-10 text-red-300 rounded-xl mb-6"
             >
