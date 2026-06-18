@@ -69,7 +69,7 @@ const BookingRequestCard = ({
 
       {openModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-sm shadow-xl p-4 pb-6">
+          <div className="bg-white rounded-2xl w-full max-w-sm shadow-xl p-4 pb-6 max-h-[90vh] overflow-y-auto">
             <div className="pb-4  flex items-center justify-between">
               <p className="text-xl font-semibold">BOOKING REQUEST</p>
               <button onClick={() => handleCloseModal()} className="">
@@ -110,7 +110,7 @@ const BookingRequestCard = ({
                 <a href={`${fileLink}/${booking.proofOfWork}`} target="_blank">
                   <button className="bg-slate-200 pt-4 border-t-2 border-b-2 flex items-center flex-col w-full">
                     <IoDocumentTextOutline size={50} className="" />
-                    <p className="bg-gray-200 w-full px-2 my-2 text-">
+                    <p className="w-full break-all  bg-gray-200 px-2 my-2 text-">
                       {booking.proofOfWork}
                     </p>
                     <p className="text-xl tracking-wider bg-gray-400 w-full py-1 mt-3">

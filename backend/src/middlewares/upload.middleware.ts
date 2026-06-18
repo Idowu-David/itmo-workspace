@@ -8,7 +8,7 @@ const storage = new CloudinaryStorage({
     const originalName = file.originalname.split(".").slice(0, -1).join(".");
     return {
       folder: "ITMOProofOfWork",
-      resource_type: "auto", // lets Cloudinary detect image, video, or raw automatically
+      resource_type: "auto",
       public_id: `${Date.now()}-${originalName}`,
     };
   },
