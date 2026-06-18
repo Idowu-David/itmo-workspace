@@ -1,4 +1,4 @@
-import express, { Application, Request, Response } from "express";
+import express, { Application, NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db";
@@ -53,7 +53,7 @@ io.on("connection", (socket) => {
 
 app.use(express.json());
 
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+// app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // Logger Middleware
 app.use("/api", requestLogger);
@@ -71,6 +71,15 @@ app.get("/api/health", (req: Request, res: Response) => {
   res.status(200).json({
     message: "API is running",
   });
+});
+
+// add at the very bottom of app.ts, after all routes
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.log("GLOBAL ERROR:", err.message);
+  console.log(err.stack);
+  res
+    .status(500)
+    .json({ message: "Internal server error", error: err.message });
 });
 
 const PORT = process.env.PORT || 5000;

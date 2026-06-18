@@ -14,11 +14,16 @@ import { IBookingInput } from "../models/Booking";
 
 // POST /api/booking
 export const makeBookingRequest = async (req: Request, res: Response) => {
+   console.log("=== BOOKING REQUEST HIT ===");
+
   try {
     const { deskId, name, purpose, phoneNumber } = req.body;
-    const proofOfWork = req.file?.filename;
+    const proofOfWork = req.file?.path;
 
     const userId = (req as any).user!.id;
+
+     console.log("BODY:", req.body);
+     console.log("FILE:", req.file);
 
     if (!deskId || !name || !purpose || !phoneNumber || !proofOfWork) {
       return res.status(400).json({
@@ -81,8 +86,6 @@ export const makeBookingRequest = async (req: Request, res: Response) => {
 
     const io = req.app.locals.io;
 
-    console.log("DESK ID FROM CONTROLLER: ", newBooking.deskId);
-
     io.emit("desk-update", {
       deskId: newBooking.deskId,
       status: "booked",
@@ -95,12 +98,12 @@ export const makeBookingRequest = async (req: Request, res: Response) => {
       message: "Booking created succesfully",
       data: newBooking,
     });
-  } catch (error) {
-    console.error("Error occured: ", error);
+  } catch (error: any) {
+    console.error("FULL ERROR:", error);
+    console.error("ERROR MESSAGE:", error?.message);
     return res.status(500).json({
       status: "error",
-      message: "Internal server error occured",
-      error,
+      message: error?.message || "Internal server error occurred",
     });
   }
 };
