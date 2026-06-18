@@ -22,7 +22,7 @@ const DeskPinCard = ({ deskNumber, pin, status }: IDeskPinProp) => {
     <div className="">
       <div className={`p-2 rounded-xl ${getDeskStyles(status)}`}>
         <p>{deskNumber}</p>
-        <p className="text-4xl font-semibold mt-2">{pin}</p>
+        <p className="text-3xl font-semibold mt-2">{pin}</p>
       </div>
     </div>
   );

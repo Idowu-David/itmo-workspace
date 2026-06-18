@@ -182,33 +182,35 @@ const AdminPage = () => {
     <div className="min-h-screen overflow-y-auto mb-10">
       <NavBar text="ITMO Admin" />
       <main className="px-2">
-        <p className="py-6 text-4xl font-semibold tracking-wide">DASHBOARD</p>
+        <p className="py-4 text-2xl font-semibold tracking-wide">DASHBOARD</p>
         <div className="grid grid-cols-2 w-full gap-4">
-          <div className="p-4 bg-green-300 rounded-xl text-xl font-medium pl-6">
+          <div className="p-2 bg-green-300 rounded-xl text-xl font-medium pl-6">
             Available
             <p className="text-5xl mt-2">{availableDesks}</p>
           </div>
-          <div className="p-4 bg-red-300 rounded-xl text-xl font-medium pl-6">
+          <div className="p-2 bg-red-300 rounded-xl text-xl font-medium pl-6">
             Unavailable
             <p className="text-5xl mt-2">{totalDesks - availableDesks}</p>
           </div>
-          <div className="p-4 bg-yellow-300 rounded-xl text-xl font-medium pl-6">
+          <div className="p-2 bg-yellow-300 rounded-xl text-xl font-medium pl-6">
             Pending
             <p className="text-5xl mt-2">{pendingBookings}</p>
           </div>
-          <div className="p-4 bg-blue-300 rounded-xl text-xl font-medium pl-6">
+          <div className="p-2 bg-blue-300 rounded-xl text-xl font-medium pl-6">
             Total Desks
             <p className="text-5xl mt-2">{totalDesks}</p>
           </div>
         </div>
 
-        <p className="pt-8 pb-4 text-4xl font-semibold tracking-wide">
+        <div className="mt-3 border w-full"></div>
+
+        <p className="py-4 text-2xl font-semibold tracking-wide">
           BOOKING REQUESTS
         </p>
 
         {!pendingBookings ? (
-          <div className="text-gray-400 font-semibold pl-10 text-2xl flex items-center gap-3">
-            <InboxIcon size={40} className="" />
+          <div className="text-gray-400 font-semibold pl-10 text-xl flex items-center gap-3">
+            <InboxIcon size={30} className="" />
             <p>NO PENDING BOOKING</p>
           </div>
         ) : (
@@ -226,9 +228,11 @@ const AdminPage = () => {
           </div>
         )}
 
-        <p className="py-6 text-4xl font-semibold tracking-wide">DESK PINS</p>
+        <div className="mt-3 border w-full"></div>
 
-        <div className="grid grid-cols-2 gap-3 text-2xl">
+        <p className="py-4 text-2xl font-semibold tracking-wide">DESK PINS</p>
+
+        <div className="grid grid-cols-2 gap-3 text-xl">
           {deskPins.map((desk) => (
             <DeskPinCard
               key={desk.deskNumber}
