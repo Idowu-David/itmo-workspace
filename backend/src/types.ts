@@ -5,7 +5,8 @@ export type BookingStatus =
   | "approved"
   | "rejected"
   | "checked-in"
-  | "expired";
+  | "expired"
+  | "checked-out"
 
 export type DeskStatus = "available" | "pending" | "booked";
 

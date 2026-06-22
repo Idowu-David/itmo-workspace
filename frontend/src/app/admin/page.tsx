@@ -112,8 +112,26 @@ const AdminPage = () => {
           return prev.map((b) => (b._id === booking._id ? booking : b));
         return [booking, ...prev];
       });
+
+      if (booking.deskId?._id) {
+        setDesks((prev) =>
+          prev.map((d) => {
+            if (d.id !== booking.deskId?._id) return d;
+
+            return {
+              ...d,
+              status:
+                booking.status === "approved" || booking.status === "checked-in"
+                  ? "occupied"
+                  : booking.status === "rejected"
+                    ? "available"
+                    : d.status,
+            };
+          }),
+        );
+      }
     });
-    
+
     const fetchDesks = async () => {
       try {
         const response = await api.get("/desks");

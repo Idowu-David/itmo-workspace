@@ -11,7 +11,7 @@ import socket from "@/lib/socket";
 import ApprovedBookingModal from "@/components/ApprovedBookingModal";
 import CheckinModal from "@/components/CheckinModal";
 import { IBooking } from "@/types";
-
+import CheckoutModal from "@/components/CheckoutModal";
 export interface Desk {
   id: string;
   status: string;
@@ -26,6 +26,7 @@ const App = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bookingStep, setBookingStep] = useState(1);
   const [activeBooking, setActiveBooking] = useState<IBooking | null>(null);
+  const [checkoutModal, setCheckoutModal] = useState(false);
 
   const totalDesks = desks.length;
   const availableDesks = desks.filter(
@@ -51,41 +52,29 @@ const App = () => {
       setDesks((prev) =>
         prev.map((d) => (d.id === deskId ? { ...d, status } : d)),
       );
-
-      // if (status === "available") {
-      //   setActiveBooking((prev) => {
-      //     if (prev?.deskId?.toString() === deskId) {
-      //       setSelectedDesk(null);
-      //       setIsModalOpen(false);
-      //       setBookingStep(1);
-      //       return null;
-      //     }
-      //     return prev;
-      //   });
-      // }
     });
 
     socket.on("booking-approved", ({ booking, desk }) => {
       setActiveBooking(booking);
-      console.log("DESK:", desk);
+      console.log("DESK APPROVED:", desk);
       setSelectedDesk(desk);
     });
 
-    socket.on("booking-rejected", ({ booking, deskId }) => {
+    socket.on("booking-rejected", ({ booking, desk }) => {
       setActiveBooking(null);
       setSelectedDesk(null);
       setIsModalOpen(false);
       setBookingStep(1);
 
+      const resolvedDeskId =
+        desk?.id?.toString() || booking?.deskId?.toString();
+
       setDesks((prev) =>
         prev.map((d) =>
-          d.id === (deskId ?? booking?.deskId?.toString())
-            ? { ...d, status: "available" }
-            : d,
+          d.id === resolvedDeskId ? { ...d, status: "available" } : d,
         ),
       );
     });
-
     socket.on("booking-update", (booking) => {
       setActiveBooking(booking);
     });
@@ -182,6 +171,10 @@ const App = () => {
   //   },
   // ];
 
+  console.log("ACTIVEBOOKING UPDATE", activeBooking);
+  
+  console.log("ACTIVEBOOKING AFTER CHECKOUT", activeBooking);
+
   const handleDeskClick = (desk: Desk) => {
     if (
       activeBooking?.status === "approved" ||
@@ -216,6 +209,10 @@ const App = () => {
     setSelectedDesk(null);
     setIsModalOpen(false);
     setBookingStep(1);
+  };
+
+  const handleCheckoutModal = () => {
+    setCheckoutModal(true);
   };
 
   return (
@@ -308,6 +305,27 @@ const App = () => {
             </div>
           </div>
         </div>
+
+        {activeBooking?.status === "checked-in" && (
+          <button
+            onClick={handleCheckoutModal}
+            className="p-5 text-xl font-semibold bg-[#4338CA] text-white tracking-wider rounded-2xl active:scale-90"
+          >
+            CHECKOUT BOOKING
+          </button>
+        )}
+
+        {checkoutModal && (
+          <CheckoutModal
+            onCancel={() => setCheckoutModal(false)}
+            desk={selectedDesk}
+            setActiveBooking={() => setActiveBooking(null)}
+            booking={activeBooking}
+          />
+
+        )
+        
+        }
       </main>
     </div>
   );

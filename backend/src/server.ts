@@ -73,7 +73,6 @@ app.get("/api/health", (req: Request, res: Response) => {
   });
 });
 
-// add at the very bottom of app.ts, after all routes
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.log("GLOBAL ERROR:", err.message);
   console.log(err.stack);

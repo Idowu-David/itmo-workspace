@@ -47,7 +47,7 @@ const CheckinModal = ({
   const handleCheckin = async () => {
     try {
       await api.patch(`/booking/${booking._id}/checkin`, { pin });
-      setActiveBooking(null);
+      // setActiveBooking(null);
       onClose();
     } catch (error) {
       console.error("Checkin failed", error);

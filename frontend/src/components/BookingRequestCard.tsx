@@ -1,7 +1,8 @@
 import { IBooking } from "@/app/admin/page";
 import { Check, X } from "lucide-react";
 import { IoClose, IoDocumentTextOutline } from "react-icons/io5";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import socket from "@/lib/socket";
 
 // TODO: Make Request card clickable for details modal
 // Render password for all desks
@@ -71,14 +72,14 @@ const BookingRequestCard = ({
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl w-full max-w-sm shadow-xl p-4 pb-6 max-h-[90vh] overflow-y-auto">
             <div className="pb-4  flex items-center justify-between">
-              <p className="text-xl font-semibold">BOOKING REQUEST</p>
+              <p className="text-2xl font-semibold">BOOKING REQUEST</p>
               <button onClick={() => handleCloseModal()} className="">
                 <IoClose size={36} />
               </button>
             </div>
 
             <div className="flex items-center pb-4 justify-between">
-              <p>NAME: {booking.name}</p>
+              <p className="text-2xl font-bold">NAME: {booking.name}</p>
               <div className="px-3 py-0.5 text-xs rounded-2xl bg-amber-300">
                 {booking.status}
               </div>

@@ -14,7 +14,7 @@ import { IBookingInput } from "../models/Booking";
 
 // POST /api/booking
 export const makeBookingRequest = async (req: Request, res: Response) => {
-   console.log("=== BOOKING REQUEST HIT ===");
+  console.log("=== BOOKING REQUEST HIT ===");
 
   try {
     const { deskId, name, purpose, phoneNumber } = req.body;
@@ -22,8 +22,8 @@ export const makeBookingRequest = async (req: Request, res: Response) => {
 
     const userId = (req as any).user!.id;
 
-     console.log("BODY:", req.body);
-     console.log("FILE:", req.file);
+    console.log("BODY:", req.body);
+    console.log("FILE:", req.file);
 
     if (!deskId || !name || !purpose || !phoneNumber || !proofOfWork) {
       return res.status(400).json({
@@ -183,7 +183,7 @@ export const approveBooking = async (req: Request, res: Response) => {
 
     const desk = await getDeskByID(booking.deskId);
     // emit specifically to the student who booked
-    io.to(booking.userId.toString()).emit("booking-approved", {
+    io.emit("booking-approved", {
       booking,
       desk,
     });
@@ -234,6 +234,7 @@ export const rejectBooking = async (req: Request, res: Response) => {
     });
 
     const desk = await getDeskByID(booking.deskId);
+
     io.to(booking.userId.toString()).emit("booking-rejected", {
       booking,
       desk,
@@ -341,6 +342,74 @@ export const checkinBooking = async (req: Request, res: Response) => {
       status: "error",
       message: "Booking status is not approved",
     });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Server error",
+      error,
+    });
+  }
+};
+
+export const checkoutBooking = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const userId = (req as any).user.id;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({
+        status: "error",
+        message: "Invalid Booking ID",
+      });
+    }
+
+    const booking = await fetchBookingByID(String(id));
+
+    if (!booking) {
+      return res.status(404).json({
+        status: "error",
+        message: "Booking not found",
+      });
+    }
+
+    if (booking.userId.toString() !== userId) {
+      return res.status(403).json({
+        status: "error",
+        message: "Not your booking",
+      });
+    }
+
+    if (booking.status === "checked-in") {
+      const desk = await getDeskByID(booking.deskId);
+
+      if (!desk) {
+        return res.status(404).json({
+          status: "error",
+          message: "Desk not found",
+        });
+      }
+
+      booking.status = "checked-out";
+      await booking.save();
+
+      await updateDeskStatus(booking, "available", booking._id);
+
+      const io = req.app.locals.io;
+      
+      io.emit("desk-update", {
+        deskId: booking.deskId,
+        status: "available",
+      });
+
+      io.emit("booking-update", booking);
+
+      return res.status(200).json({
+        status: "success",
+        message: "Successfully checked out",
+        data: booking,
+      });
+    }
   } catch (error) {
     res.status(500).json({
       status: "error",
