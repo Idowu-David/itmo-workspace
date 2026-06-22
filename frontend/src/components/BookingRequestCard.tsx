@@ -27,7 +27,7 @@ const BookingRequestCard = ({
     // timeStyle: "short",
   });
   const time = new Date(booking.createdAt).toLocaleTimeString();
-  const fileLink = `${process.env.NEXT_PUBLIC_API_URL}/uploads`;
+  const fileName = booking.proofOfWork?.split("/").pop();
 
   const handleCloseModal = () => {
     setOpenModal(false);
@@ -106,18 +106,18 @@ const BookingRequestCard = ({
               <p className="p-3 bg-gray-300 rounded-lg">{booking.purpose}</p>
             </div>
             <div className="w-full">
-              <p className="my-3">PROOF OF WORK</p>
-              <div className="w-full">
-                <a href={`${fileLink}/${booking.proofOfWork}`} target="_blank">
-                  <button className="bg-slate-200 pt-4 border-t-2 border-b-2 flex items-center flex-col w-full">
+              <p className="my-3 text-2xl font-semibold">PROOF OF WORK</p>
+              <div className="w-full flex flex-col text-center">
+                <a href={booking.proofOfWork} target="_blank">
+                  <div className="bg-slate-200 pt-4 border-t-2 border-b-2 flex items-center flex-col w-full">
                     <IoDocumentTextOutline size={50} className="" />
                     <p className="w-full break-all  bg-gray-200 px-2 my-2 text-">
-                      {booking.proofOfWork}
+                      {fileName}
                     </p>
                     <p className="text-xl tracking-wider bg-gray-400 w-full py-1 mt-3">
                       View Document
                     </p>
-                  </button>
+                  </div>
                 </a>
               </div>
             </div>
