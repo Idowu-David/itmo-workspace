@@ -7,13 +7,13 @@ interface NavBarProps {
 }
 
 const NavBar = ({ text }: NavBarProps) => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [name, setName] = useState("");
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
-    setFirstName(user.firstName || "");
-    setLastName(user.lastName || "");
+    setName(user.name || "");
+
+    console.log("USER", user);
   }, []);
 
   return (
@@ -36,9 +36,7 @@ const NavBar = ({ text }: NavBarProps) => {
           className="rounded-full"
           priority
         /> */}
-        <p className="text-xl font-semibold tracking-wider">
-          {firstName} {lastName}
-        </p>
+        <p className="text-xl font-semibold tracking-wider">{name}</p>
       </div>
     </nav>
   );
