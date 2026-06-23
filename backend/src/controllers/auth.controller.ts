@@ -171,7 +171,7 @@ export const login = async (req: Request, res: Response) => {
       token: token,
       user: {
         id: user._id.toString(),
-        name: user.firstName + user.lastName,
+        name: user.firstName + " " + user.lastName,
         email: user.email,
         role: user.role,
       },
