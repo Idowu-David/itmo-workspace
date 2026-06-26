@@ -225,7 +225,7 @@ const App = () => {
         </p>
 
         <div className="w-full bg-white shadow-lg rounded-[30px] p-5">
-          <div className="flex flex-col justify-center font-bold text-xl mb-5 gap-2">
+          <div className="space-y-3 md:flex md:justify-around font-bold text-xl mb-4 gap-2 ">
             <div className="flex gap-3">
               <p className="w-10.5 h-7 bg-[#16A34A33] rounded-md text-center">
                 {availableDesks}

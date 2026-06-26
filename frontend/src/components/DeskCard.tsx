@@ -45,11 +45,11 @@ const DeskCard: React.FC<DeskCardProps> = ({
       disabled={desk.status !== "available"}
       onClick={onClick}
       className={`
-        w-full rounded-2xl flex flex-col items-center justify-center py-3 active:scale-[0.95] shadow-md ${getDeskStyles(desk.status)}
+        w-full rounded-2xl flex flex-col items-center justify-center py-3 md:py-2 active:scale-[0.95] shadow-md ${getDeskStyles(desk.status)}
         ${isMyDesk ? "ring-2 ring-bg-[#22222299]" : ""}
         `}
     >
-      <div className="rounded-full bg-white flex items-center justify-center relative w-16 h-16">
+      <div className="rounded-full bg-white flex items-center justify-center relative w-16 h-16 md:h-14 md:w-14">
         {desk.status === "pending" ? reviewIcon : deskIcon}
       </div>
       <span className="text- font-semibold mt-1">

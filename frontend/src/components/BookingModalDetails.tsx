@@ -79,8 +79,8 @@ const BookingModalDetails = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center z-50 justify-center p-4">
-      <div className="bg-white rounded-2xl p-8 w-full max-w-sm shadow-xl">
+    <div className="fixed inset-0 bg-black/50 flex items-center z-50 justify-center p-4 ">
+      <div className="bg-white rounded-2xl p-8 w-full max-w-sm shadow-xl md:max-h-[90vh] md:overflow-y-auto">
         <div className="flex flex-col items-center">
           <div className="w-full bg-[#8AA8E9] py-4 pl-4 rounded-xl mb-4 text-xl text-white relative flex justify-between pr-4">
             <h1>Please fill this form</h1>
@@ -95,7 +95,7 @@ const BookingModalDetails = ({
 
           <form onSubmit={handleSubmit} className="w-full flex flex-col gap-3">
             <div>
-              <p className="mb-2">Name</p>
+              <p className="mb-2 font-semibold">Name</p>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -106,7 +106,7 @@ const BookingModalDetails = ({
               />
             </div>
             <div>
-              <p className="mb-2">Phone number</p>
+              <p className="mb-2 font-semibold">Phone number</p>
               <input
                 value={phoneNumber}
                 required
@@ -117,7 +117,7 @@ const BookingModalDetails = ({
               />
             </div>
             <div>
-              <p className="mb-2">Purpose of visit</p>
+              <p className="mb-2 font-semibold">Purpose of visit</p>
               <textarea
                 value={purpose}
                 required
@@ -128,7 +128,7 @@ const BookingModalDetails = ({
             </div>
 
             <div>
-              <p className="mb-2">Proof of work</p>
+              <p className="mb-2 font-semibold">Proof of work</p>
 
               <label className="border rounded-md px-4 py-3 flex items-center gap-2 cursor-pointer w-fit text-blue-300">
                 <FiUpload size={20} />
