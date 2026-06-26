@@ -1,5 +1,7 @@
 import express, { Application, NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
+dotenv.config();
+
 import cors from "cors";
 import connectDB from "./config/db";
 import authRoutes from "./routes/auth.routes";
@@ -10,7 +12,6 @@ import { Server } from "socket.io";
 import { createServer } from "node:http";
 import path from "path";
 
-dotenv.config();
 
 connectDB();
 

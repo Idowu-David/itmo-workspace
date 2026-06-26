@@ -8,9 +8,9 @@ export const checkUserDataExists = async (email: string) => {
   return User.findOne({ email }).select('+password');
 };
 
-export const addNewUser = async (firstName: string, lastName: string, email: string, passwordHash: string) => {
+export const addNewUser = async (firstName: string, lastName: string, email: string, passwordHash: string, verificationToken: string) => {
   return User.create({
-    firstName, lastName, email, password: passwordHash
+    firstName, lastName, email, password: passwordHash, isVerified: false, verificationToken, verificationTokenExpiry: new Date(Date.now() + 30 * 60 * 1000)
   })
 }
 

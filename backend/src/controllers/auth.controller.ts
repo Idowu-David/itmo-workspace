@@ -9,6 +9,8 @@ import {
   getUserByID,
 } from "../services/auth.services";
 import { OAuth2Client } from "google-auth-library";
+import { sendVerificationEmail } from "../utils/sendVerificationEmail";
+import crypto from "crypto";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -88,6 +90,13 @@ export const register = async (req: Request, res: Response) => {
       });
     }
 
+    if (!email.endsWith("@live.unilag.edu.ng")) {
+      return res.status(400).json({
+        status: "error",
+        message: "Please register with your official Unilag student email",
+      });
+    }
+
     const existingUser = await checkUserExists(email);
 
     if (existingUser) {
@@ -99,7 +108,15 @@ export const register = async (req: Request, res: Response) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const newUser = await addNewUser(firstName, lastName, email, passwordHash);
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+
+    const newUser = await addNewUser(
+      firstName,
+      lastName,
+      email,
+      passwordHash,
+      verificationToken,
+    );
 
     if (!newUser) {
       return res.status(404).json({
@@ -107,27 +124,25 @@ export const register = async (req: Request, res: Response) => {
         message: "User registration error occured",
       });
     }
-
-    const token = generateToken({
-      id: newUser._id.toString(),
-      role: newUser.role,
-    });
+    console.log("BEFORE VERIFICATION");
+    await sendVerificationEmail(email, verificationToken);
+    console.log("AFTER VERIFICATION");
 
     return res.status(201).json({
       status: "success",
-      message: "User account created successfully",
-      token,
-      user: {
-        id: newUser._id.toString(),
-        firstName: firstName,
-        lastName: lastName,
-        email: newUser.email,
-        role: newUser.role,
-      },
+      message:
+        "User account created successfully. Please check your email for verification",
+      // user: {
+      //   id: newUser._id.toString(),
+      //   firstName: firstName,
+      //   lastName: lastName,
+      //   email: newUser.email,
+      //   role: newUser.role,
+      // },
     });
   } catch (error) {
     console.error(`Error occured during sign up: ${error}`);
-    res.status(400).json({
+    res.status(500).json({
       status: "error",
       message: "Server error",
     });
@@ -160,6 +175,13 @@ export const login = async (req: Request, res: Response) => {
       return res.status(401).json({
         status: "error",
         message: "Password is incorrect",
+      });
+    }
+
+    if (!user.isVerified) {
+      return res.status(403).json({
+        status: "error",
+        message: "Please verify your email before logging in",
       });
     }
 
@@ -206,5 +228,44 @@ export const getMe = async (req: Request, res: Response) => {
       status: "error",
       message: "Server error",
     });
+  }
+};
+
+export const verifyEmail = async (req: Request, res: Response) => {
+  try {
+    const token = req.query.token as string;
+
+    if (!token) {
+      return res.status(400).json({
+        status: "error",
+        message: "Token is required",
+      });
+    }
+    const user = await User.findOne({ verificationToken: token }).select(
+      "+verificationToken +verificationTokenExpiry",
+    );
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ status: "error", message: "Invalid verification link" });
+    }
+
+    if (user.verificationTokenExpiry! < new Date()) {
+      return res
+        .status(400)
+        .json({ status: "error", message: "Verification link expired" });
+    }
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpiry = undefined;
+    await user.save();
+
+    return res
+      .status(200)
+      .json({ status: "success", message: "Email verified successfully" });
+  } catch (error) {
+    return res.status(500).json({ status: "error", message: "Server error" });
   }
 };
