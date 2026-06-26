@@ -55,18 +55,10 @@ const Details = () => {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
-      router.push("/");
+      router.push("/verify-notice");
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        const status = error.response?.status;
-
-        if (status === 400) {
-          setError("Something went wrong, please try again");
-        } else if (status === 404) {
-          setError("Account creation unsuccessful");
-        } else {
-          setError("Something went wrong, please try again");
-        }
+        setError(error.response?.data.message);
       }
     } finally {
       setLoading(false);

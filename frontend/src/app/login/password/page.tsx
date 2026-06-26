@@ -40,15 +40,7 @@ const Details = () => {
       else router.push("/");
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        const status = error.response?.status;
-
-        if (status === 401) {
-          setError("Incorrect password. Please try again");
-        } else if (status === 404) {
-          setError("No account found with this email");
-        } else {
-          setError("Something went wrong, please try again");
-        }
+        setError(error.response?.data.message);
       }
     } finally {
       setLoading(false);
