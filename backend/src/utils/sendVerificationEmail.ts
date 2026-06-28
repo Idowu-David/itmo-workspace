@@ -1,11 +1,12 @@
-import resend from "../config/mailer";
+import transporter from "../config/mailer";
 
 export const sendVerificationEmail = async (email: string, token: string) => {
   const verifyUrl = `${process.env.CLIENT_URL}/verify-email?token=${token}`;
 
+  console.log("VERIFY: ", verifyUrl)
   try {
-    const { data, error } = await resend.emails.send({
-      from: "ITMO Workspace <onboarding@resend.dev>",
+    const info = await transporter.sendMail({
+      from: `"ITMO Workspace" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "Verify your ITMO account",
       html: `
@@ -20,12 +21,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
       `,
     });
 
-    if (error) {
-      console.error("Resend error:", error);
-      throw new Error(error.message);
-    }
-
-    console.log("Email sent:", data?.id);
+    console.log("Email sent:", info.messageId);
     return true;
   } catch (error) {
     console.error("Failed to send email:", error);

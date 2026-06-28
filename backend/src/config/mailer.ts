@@ -1,5 +1,17 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
+import dns from "dns";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// force Node to prefer IPv4 when resolving hostnames
+dns.setDefaultResultOrder("ipv4first");
 
-export default resend;
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, // true for port 465, false for port 587
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_APP_PASSWORD,
+  },
+});
+
+export default transporter;
