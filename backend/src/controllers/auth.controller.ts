@@ -11,6 +11,7 @@ import {
 import { OAuth2Client } from "google-auth-library";
 import { sendVerificationEmail } from "../utils/sendVerificationEmail";
 import crypto from "crypto";
+import { sendPasswordResetEmail } from "../utils/sendPasswordResetEmail";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -266,6 +267,104 @@ export const verifyEmail = async (req: Request, res: Response) => {
       .status(200)
       .json({ status: "success", message: "Email verified successfully" });
   } catch (error) {
+    return res.status(500).json({ status: "error", message: "Server error" });
+  }
+};
+
+// POST /auth/forgot-password
+export const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res
+        .status(400)
+        .json({ status: "error", message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(200).json({
+        status: "success",
+        message:
+          "If an account exists with this email, a reset link has been sent",
+      });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordTokenExpiry = new Date(Date.now() + 30 * 60 * 1000);
+    await user.save();
+
+    await sendPasswordResetEmail(email, resetToken);
+
+    return res.status(200).json({
+      status: "success",
+      message:
+        "If an account exists with this email, a reset link has been sent",
+    });
+  } catch (error) {
+    console.error("Forgot password error:", error);
+    return res.status(500).json({ status: "error", message: "Server error" });
+  }
+};
+
+// PATCH /auth/reset-password
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const token = req.query.token as string;
+    const { password } = req.body;
+
+    if (!token) {
+      return res
+        .status(400)
+        .json({ status: "error", message: "Token is required" });
+    }
+
+    if (!password || password.length < 6) {
+      return res
+        .status(400)
+        .json({
+          status: "error",
+          message: "Password must be at least 6 characters",
+        });
+    }
+
+    // find user with this token
+    const user = await User.findOne({
+      resetPasswordToken: token,
+    }).select("+resetPasswordToken +resetPasswordTokenExpiry +password");
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ status: "error", message: "Invalid or expired reset link" });
+    }
+
+    // check token hasn't expired
+    if (user.resetPasswordTokenExpiry! < new Date()) {
+      return res
+        .status(400)
+        .json({ status: "error", message: "Reset link has expired" });
+    }
+
+    // hash the new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // update password and clear the reset token
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordTokenExpiry = undefined;
+    await user.save();
+
+    return res.status(200).json({
+      status: "success",
+      message: "Password reset successfully. You can now log in.",
+    });
+  } catch (error) {
+    console.error("Reset password error:", error);
     return res.status(500).json({ status: "error", message: "Server error" });
   }
 };
