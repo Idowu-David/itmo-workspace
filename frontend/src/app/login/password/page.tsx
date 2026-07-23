@@ -128,7 +128,7 @@ const Details = () => {
         </div>
         <p className="text-[16px] mt-9 text-[#64748B]">
           Can’t remember your password?{" "}
-          <Link href="/signup" className="text-[#2C5CC5] underline">
+          <Link href="/forgot-password" className="text-[#2C5CC5] underline">
             {" "}
             Reset Password
           </Link>
