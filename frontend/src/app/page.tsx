@@ -12,6 +12,8 @@ import ApprovedBookingModal from "@/components/ApprovedBookingModal";
 import CheckinModal from "@/components/CheckinModal";
 import { IBooking } from "@/types";
 import CheckoutModal from "@/components/CheckoutModal";
+import PreBookingModal from "@/components/PreBookingModal"
+
 export interface Desk {
   id: string;
   status: string;
@@ -24,7 +26,7 @@ const App = () => {
   const [desks, setDesks] = useState<Desk[]>([]);
   const [selectedDesk, setSelectedDesk] = useState<Desk | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [bookingStep, setBookingStep] = useState(1);
+  const [bookingStep, setBookingStep] = useState(0);
   const [activeBooking, setActiveBooking] = useState<IBooking | null>(null);
   const [checkoutModal, setCheckoutModal] = useState(false);
 
@@ -171,10 +173,6 @@ const App = () => {
   //   },
   // ];
 
-  console.log("ACTIVEBOOKING UPDATE", activeBooking);
-  
-  console.log("ACTIVEBOOKING AFTER CHECKOUT", activeBooking);
-
   const handleDeskClick = (desk: Desk) => {
     if (
       activeBooking?.status === "approved" ||
@@ -190,7 +188,7 @@ const App = () => {
     }
     if (desk.status !== "available") return;
     setIsModalOpen(true);
-    setBookingStep(1);
+    setBookingStep(0);
   };
 
   const handleCloseModal = () => {
@@ -239,6 +237,13 @@ const App = () => {
               Workspaces unavailable
             </div>
           </div>
+
+          {isModalOpen && selectedDesk && bookingStep === 0 && (
+            <PreBookingModal
+              onConfirm={() => setBookingStep(1)}
+              onClose={handleCloseModal}
+            />
+          )}
 
           {isModalOpen && selectedDesk && bookingStep === 1 && (
             <BookingModal
