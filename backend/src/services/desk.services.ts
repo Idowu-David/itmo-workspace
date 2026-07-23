@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Desk from "../models/Desk";
 import { IBooking } from "../models/Booking";
 import { DeskStatus } from "../types";
+import crypto from "crypto";
 
 export const getAllDesks = async () => {
   return await Desk.find({}).sort({ deskNumber: 1 });
@@ -27,5 +28,20 @@ export const updateDeskStatus = async (
 };
 
 export const deskPins = async () => {
-  return await Desk.find().select('+pin').sort({ deskNumber: 1 });
-}
+  return await Desk.find().select("+pin").sort({ deskNumber: 1 });
+};
+
+export const updateDeskPin = async (booking: IBooking) => {
+  const generatePIN = () => {
+    return crypto.randomInt(1000, 9999).toString();
+  };
+
+  return await Desk.findByIdAndUpdate(
+    booking.deskId,
+    {
+      status: "booked",
+      pin: generatePIN(),
+    },
+    { new: true },
+  );
+};

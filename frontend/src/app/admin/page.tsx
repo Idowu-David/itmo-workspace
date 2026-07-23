@@ -91,15 +91,13 @@ const AdminPage = () => {
 
     socket.connect();
 
-    socket.on("desk-update", ({ deskId, status }) => {
+    socket.on("desk-update", ({ deskId, status, pin }) => {
       console.log("DESK ID FROM ADMIN: ", deskId);
 
       setDesks((prev) => {
         const updated = prev.map((d) =>
-          d.id === deskId ? { ...d, status } : d,
+          d.id === deskId ? { ...d, status, pin, } : d,
         );
-
-        console.log("updated desks", updated);
 
         return updated;
       });

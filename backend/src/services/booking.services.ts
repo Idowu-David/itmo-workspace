@@ -24,3 +24,4 @@ export const fetchBooking = async (status?: BookingStatus) => {
 export const fetchBookingByID = async (id: string) => {
   return await Booking.findById({ _id: id });
 };
+

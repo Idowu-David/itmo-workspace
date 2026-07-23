@@ -11,6 +11,7 @@ import { BookingStatus } from "../types";
 import { startGracePeriod } from "../utils/gracePeriod";
 import { updateDeskStatus } from "../services/desk.services";
 import { IBookingInput } from "../models/Booking";
+import { updateDeskPin } from "../services/desk.services";
 
 // POST /api/booking
 export const makeBookingRequest = async (req: Request, res: Response) => {
@@ -323,10 +324,20 @@ export const checkinBooking = async (req: Request, res: Response) => {
 
       await updateDeskStatus(booking, "booked", booking._id);
 
+      const updatedDesk = await updateDeskPin(booking);
+
+      if (!updatedDesk) {
+        return res.status(404).json({
+          message: "Desk not found",
+        });
+      }
+
       const io = req.app.locals.io;
+
       io.emit("desk-update", {
         deskId: booking.deskId,
         status: "booked",
+        pin: updatedDesk.pin,
       });
 
       io.emit("booking-update", booking);
@@ -396,7 +407,7 @@ export const checkoutBooking = async (req: Request, res: Response) => {
       await updateDeskStatus(booking, "available", booking._id);
 
       const io = req.app.locals.io;
-      
+
       io.emit("desk-update", {
         deskId: booking.deskId,
         status: "available",
