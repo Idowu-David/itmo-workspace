@@ -22,6 +22,6 @@ export const fetchBooking = async (status?: BookingStatus) => {
     .lean();
 };
 export const fetchBookingByID = async (id: string) => {
-  return await Booking.findById({ _id: id });
+  return await Booking.findById(id).populate("deskId", "deskNumber");
 };
 

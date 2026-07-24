@@ -94,10 +94,14 @@ export const makeBookingRequest = async (req: Request, res: Response) => {
 
     io.emit("booking-update", newBooking);
 
+    const populatedBooking = await fetchBookingByID(String(newBooking._id));
+
+    io.emit("booking-update", populatedBooking);
+
     return res.status(201).json({
       status: "success",
       message: "Booking created succesfully",
-      data: newBooking,
+      data: populatedBooking,
     });
   } catch (error: any) {
     console.error("FULL ERROR:", error);

@@ -78,7 +78,7 @@ const BookingRequestCard = ({
               </button>
             </div>
 
-            <div className="flex items-center pb-4 justify-between">
+            <div className="flex items-center pb-2 justify-between">
               <p className="text-2xl font-bold">NAME: {booking.name}</p>
               <div className="px-3 py-0.5 text-xs rounded-2xl bg-amber-300">
                 {booking.status}
@@ -88,25 +88,25 @@ const BookingRequestCard = ({
               <div className="bg-gray-300 flex items-center justify-center rounded-lg text-xl font-bold">
                 {booking.deskId?.deskNumber}
               </div>
-              <div className="bg-gray-300 rounded-lg p-3 text-lg">
+              <div className="bg-gray-300 rounded-lg p-3 text-base">
                 DATE:
-                <p className="font-bold text-xl">{date}</p>
+                <p className="font-medium text-xl">{date}</p>
               </div>
-              <div className="bg-gray-300 rounded-lg p-3 text-lg">
+              <div className="bg-gray-300 rounded-lg p-3 text-base">
                 TIME:
-                <p className="font-bold text-xl"> {time}</p>
+                <p className="font-medium text-xl"> {time}</p>
               </div>
-              <div className="bg-gray-300 rounded-lg p-3 text-lg">
+              <div className="bg-gray-300 rounded-lg p-3 text-base">
                 PHONE:{" "}
-                <p className="font-bold text-xl">{booking.phoneNumber}</p>
+                <p className="font-medium text-xl">{booking.phoneNumber}</p>
               </div>
             </div>
             <div>
-              <p className="my-4">BOOKING PURPOSE</p>
+              <p className="mt-4 text-2xl font-bold">BOOKING PURPOSE</p>
               <p className="p-3 bg-gray-300 rounded-lg">{booking.purpose}</p>
             </div>
             <div className="w-full">
-              <p className="my-3 text-2xl font-semibold">PROOF OF WORK</p>
+              <p className="mt-3  text-2xl font-semibold">PROOF OF WORK</p>
               <div className="w-full flex flex-col text-center">
                 <a href={booking.proofOfWork} target="_blank">
                   <div className="bg-slate-200 pt-4 border-t-2 border-b-2 flex items-center flex-col w-full">
