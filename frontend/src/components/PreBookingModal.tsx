@@ -1,10 +1,5 @@
 "use client";
 
-import { Desk } from "@/app/page";
-import { useState } from "react";
-import DeskCard from "./DeskCard";
-import { IBooking } from "../../../backend/src/models/Booking";
-
 interface IBookingModal {
   onConfirm: () => void;
   onClose: () => void;
