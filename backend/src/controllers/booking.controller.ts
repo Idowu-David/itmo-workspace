@@ -15,16 +15,11 @@ import { updateDeskPin } from "../services/desk.services";
 
 // POST /api/booking
 export const makeBookingRequest = async (req: Request, res: Response) => {
-  console.log("=== BOOKING REQUEST HIT ===");
-
   try {
     const { deskId, name, purpose, phoneNumber } = req.body;
     const proofOfWork = req.file?.path;
 
     const userId = (req as any).user!.id;
-
-    console.log("BODY:", req.body);
-    console.log("FILE:", req.file);
 
     if (!deskId || !name || !purpose || !phoneNumber || !proofOfWork) {
       return res.status(400).json({
@@ -92,16 +87,14 @@ export const makeBookingRequest = async (req: Request, res: Response) => {
       status: "booked",
     });
 
+    console.log("new: ", newBooking);
+
     io.emit("booking-update", newBooking);
-
-    const populatedBooking = await fetchBookingByID(String(newBooking._id));
-
-    io.emit("booking-update", populatedBooking);
 
     return res.status(201).json({
       status: "success",
       message: "Booking created succesfully",
-      data: populatedBooking,
+      data: newBooking,
     });
   } catch (error: any) {
     console.error("FULL ERROR:", error);
@@ -122,7 +115,7 @@ export const fetchAllBooking = async (req: Request, res: Response) => {
         : undefined;
 
     const bookings = await fetchBooking(status);
-
+    console.log("BOOKINGS: ", bookings);
     if (!bookings) {
       return res.status(404).json({
         status: "error",

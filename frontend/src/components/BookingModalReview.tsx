@@ -6,7 +6,7 @@ import { IoInformationCircle } from "react-icons/io5";
 import { IoClose } from "react-icons/io5";
 import { IBooking } from "@/types";
 import api from "@/lib/api";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 interface IBookingModal {
   desk: Desk;
@@ -23,14 +23,19 @@ const BookingModalReview = ({
   setActiveBooking,
   onCancelComplete,
 }: IBookingModal) => {
+  const [loading, setLoading] = useState(false);
+
   const handleCancelBooking = async () => {
     try {
+      setLoading(true);
       if (!booking) return;
       await api.patch(`/booking/${booking._id}/cancel`);
 
       onCancelComplete();
     } catch (error) {
       console.error("Cancel failed", error);
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -56,9 +61,9 @@ const BookingModalReview = ({
             </button>
             <button
               onClick={handleCancelBooking}
-              className="p-3 border-red-300  border-2 px-10 text-red-300 rounded-xl mb-6"
+              className="p-3 border-red-300  border-2 px-10 text-red-300 rounded-xl mb-6 scale-[0.95]"
             >
-              Cancel Booking
+              {loading ? "Cancelling..." : "Cancel Booking"}
             </button>
           </div>
         </div>

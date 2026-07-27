@@ -12,7 +12,7 @@ import ApprovedBookingModal from "@/components/ApprovedBookingModal";
 import CheckinModal from "@/components/CheckinModal";
 import { IBooking } from "@/types";
 import CheckoutModal from "@/components/CheckoutModal";
-import PreBookingModal from "@/components/PreBookingModal"
+import PreBookingModal from "@/components/PreBookingModal";
 
 export interface Desk {
   id: string;
@@ -58,7 +58,6 @@ const App = () => {
 
     socket.on("booking-approved", ({ booking, desk }) => {
       setActiveBooking(booking);
-      console.log("DESK APPROVED:", desk);
       setSelectedDesk(desk);
     });
 
@@ -77,41 +76,59 @@ const App = () => {
         ),
       );
     });
+
     socket.on("booking-update", (booking) => {
+      console.log("BOOKING UPDATE HIT: ", booking);
       setActiveBooking(booking);
     });
 
-    const getUserBooking = async () => {
+    const fetchInitialData = async () => {
       try {
         const token = localStorage.getItem("token");
-        const booking = await api.get("/booking/my-booking", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        if (!token) {
+          const deskRes = await api.get("/desks");
+          setDesks(
+            deskRes.data.data.desks.map((d: any) => ({
+              id: d._id,
+              status: d.status,
+              deskNumber: d.deskNumber,
+            })),
+          );
+          return;
+        }
 
-        setActiveBooking(booking.data.data);
+        // Fetch desks and user booking at the same time
+        const [desksResponse, bookingResponse] = await Promise.all([
+          api.get("/desks"),
+          api
+            .get("/booking/my-booking", {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+            .catch(() => ({ data: { data: null } })),
+        ]);
+
+        const fetchedDesks = desksResponse.data.data.desks.map((desk: any) => ({
+          id: desk._id,
+          status: desk.status,
+          deskNumber: desk.deskNumber,
+        }));
+        setDesks(fetchedDesks);
+
+        const currentBooking = bookingResponse?.data?.data;
+        if (currentBooking) {
+          setActiveBooking(currentBooking);
+
+          const matchingDesk = fetchedDesks.find(
+            (d: Desk) => d.id === currentBooking.deskId,
+          );
+          if (matchingDesk) setSelectedDesk(matchingDesk);
+        }
       } catch (error) {
-        console.log("Error from fetch user booking", error);
+        console.error("Error fetching initial data", error);
       }
     };
-    const fetchDesks = async () => {
-      try {
-        const response = await api.get("/desks");
-        setDesks(
-          response.data.data.desks.map((desk: any) => ({
-            id: desk._id,
-            status: desk.status,
-            deskNumber: desk.deskNumber,
-          })),
-        );
-      } catch (error) {
-        console.error("Error while fetching from frontend", error);
-      }
-    };
 
-    getUserBooking();
-    fetchDesks();
+    fetchInitialData();
 
     return () => {
       socket.off("desk-update");
@@ -180,13 +197,14 @@ const App = () => {
     )
       return;
 
-    setSelectedDesk(desk);
     if (activeBooking) {
       setIsModalOpen(true);
       setBookingStep(3);
       return;
     }
     if (desk.status !== "available") return;
+    setSelectedDesk(desk);
+
     setIsModalOpen(true);
     setBookingStep(0);
   };
@@ -195,6 +213,7 @@ const App = () => {
     if (activeBooking?.status === "approved") return;
     setIsModalOpen(false);
     setBookingStep(1);
+    if (!activeBooking) setSelectedDesk(null);
   };
 
   const handleCheckIn = () => {
@@ -205,6 +224,7 @@ const App = () => {
   const handleCancelComplete = () => {
     setActiveBooking(null);
     setSelectedDesk(null);
+
     setIsModalOpen(false);
     setBookingStep(1);
   };
@@ -213,11 +233,13 @@ const App = () => {
     setCheckoutModal(true);
   };
 
+  console.log("SELECTED DESK : ", selectedDesk);
+
   return (
     <div className="flex flex-col items-center mb-10">
       <NavBar />
 
-      <main className="flex flex-col px-4 max-w-3xl gap-6 lg: ">
+      <main className="flex flex-col px-4 max-w-3xl gap-6 ">
         <p className="text-4xl text-center font-semibold leading-12.5 text-[#020617] mt-6">
           WELCOME TO ITMO WORKSPACE BOOKING PAGE!
         </p>
@@ -327,10 +349,7 @@ const App = () => {
             setActiveBooking={() => setActiveBooking(null)}
             booking={activeBooking}
           />
-
-        )
-        
-        }
+        )}
       </main>
     </div>
   );

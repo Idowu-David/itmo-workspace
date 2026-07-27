@@ -59,7 +59,8 @@ const BookingModalDetails = ({
       setDesks((prev) =>
         prev.map((d) => (d.id === desk.id ? { ...d, status: "pending" } : d)),
       );
-      setActiveBooking(response.data.data);
+      
+            setActiveBooking(response.data.data);
 
       onContinue();
     } catch (error) {
@@ -82,15 +83,15 @@ const BookingModalDetails = ({
     <div className="fixed inset-0 bg-black/50 flex items-center z-50 justify-center p-4 ">
       <div
         className="
-    bg-white
-    rounded-2xl
-    p-6 sm:p-8
-    w-full
-    max-w-lg
-    max-h-[90vh]
-    overflow-y-auto
-    shadow-xl
-  "
+        bg-white
+        rounded-2xl
+        p-6 sm:p-8
+        w-full
+        max-w-lg
+        max-h-[90vh]
+        overflow-y-auto
+        shadow-xl
+      "
       >
         <div className="flex flex-col items-center">
           <div className="w-full bg-[#8AA8E9] py-4 pl-4 rounded-xl mb-4 text-xl text-white relative flex justify-between pr-4">
@@ -160,7 +161,7 @@ const BookingModalDetails = ({
 
             <button
               type="submit"
-              // onClick={handleSubmit}
+              onClick={handleSubmit}
               className={clsx(
                 "w-full mt-6 rounded-xl py-4 text-white font-medium",
                 "bg-blue-700",

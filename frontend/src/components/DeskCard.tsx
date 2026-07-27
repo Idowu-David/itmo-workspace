@@ -28,6 +28,8 @@ const DeskCard: React.FC<DeskCardProps> = ({
   activeBooking,
 }) => {
   const isMyDesk = activeBooking?.deskId?.toString() === desk?.id;
+  // console.log("ACTIVE", activeBooking);
+  // console.log("DESK ID: ", desk.id);
   const deskIcon = (
     <Image
       fill
